@@ -160,7 +160,7 @@ const showingNavigationDropdown = ref(false);
 
             <!-- Cards -->
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-8">
-                <div class="grid grid-cols-4 gap-3">
+                <div class="grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-3">
                     <DashboardCard
                         route-name="orders"
                         active-component="Admin/Orders"

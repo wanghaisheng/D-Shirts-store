@@ -26,7 +26,7 @@ defineProps({
 </script>
 
 <template>
-    <Link :href="route(routeName)">
+    <Link :href="route(routeName)" preserve-scroll>
         <div
             class="flex justify-between bg-white p-4 shadow-lg rounded-lg h-32 hover:shadow-md hover:scale-[0.99] smooth"
             :class="{

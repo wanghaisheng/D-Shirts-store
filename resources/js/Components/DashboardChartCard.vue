@@ -80,7 +80,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <Link :href="route(routeName)">
+    <Link :href="route(routeName)" preserve-scroll>
         <div
             class="py-4 bg-slate-800 rounded-lg h-32 smooth overflow-hidden"
             :class="[
