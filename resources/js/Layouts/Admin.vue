@@ -1,11 +1,15 @@
 <script setup>
-import { ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
+import { ref } from "vue";
+import Dropdown from "@/Components/Breeze/Dropdown.vue";
+import DropdownLink from "@/Components/Breeze/DropdownLink.vue";
+import IconsOrder from "@/Icons/Order.vue";
+import IconsTshirt from "@/Icons/Tshirt.vue";
+import IconsUsers from "@/Icons/Users.vue";
+import IconsMoney from "@/Icons/Money.vue";
+import ResponsiveNavLink from "@/Components/Breeze/ResponsiveNavLink.vue";
+import { Link } from "@inertiajs/vue3";
+import DashboardCard from "@/Components/DashboardCard.vue";
+import DashboardChartCard from "@/Components/DashboardChartCard.vue";
 
 const showingNavigationDropdown = ref(false);
 </script>
@@ -13,9 +17,7 @@ const showingNavigationDropdown = ref(false);
 <template>
     <div>
         <div class="min-h-screen bg-gray-100">
-            <nav
-                class="border-b border-gray-100 bg-white"
-            >
+            <nav class="border-b border-gray-100 bg-white">
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
@@ -23,22 +25,12 @@ const showingNavigationDropdown = ref(false);
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
                                 <Link :href="route('dashboard')">
-                                    <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
+                                    <img
+                                        src="../../../public/assets/logo/d-shirts.png"
+                                        alt="d-shirts logo"
+                                        class="w-10"
                                     />
                                 </Link>
-                            </div>
-
-                            <!-- Navigation Links -->
-                            <div
-                                class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
-                            >
-                                <NavLink
-                                    :href="route('dashboard')"
-                                    :active="route().current('dashboard')"
-                                >
-                                    Dashboard
-                                </NavLink>
                             </div>
                         </div>
 
@@ -139,23 +131,10 @@ const showingNavigationDropdown = ref(false);
                     }"
                     class="sm:hidden"
                 >
-                    <div class="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            :href="route('dashboard')"
-                            :active="route().current('dashboard')"
-                        >
-                            Dashboard
-                        </ResponsiveNavLink>
-                    </div>
-
                     <!-- Responsive Settings Options -->
-                    <div
-                        class="border-t border-gray-200 pb-1 pt-4"
-                    >
+                    <div class="border-t border-gray-200 pb-1 pt-4">
                         <div class="px-4">
-                            <div
-                                class="text-base font-medium text-gray-800"
-                            >
+                            <div class="text-base font-medium text-gray-800">
                                 {{ $page.props.auth.user.name }}
                             </div>
                             <div class="text-sm font-medium text-gray-500">
@@ -179,18 +158,44 @@ const showingNavigationDropdown = ref(false);
                 </div>
             </nav>
 
-            <!-- Page Heading -->
-            <header
-                class="bg-white shadow"
-                v-if="$slots.header"
-            >
-                <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                    <slot name="header" />
+            <!-- Cards -->
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-8">
+                <div class="grid grid-cols-4 gap-3">
+                    <DashboardCard
+                        route-name="orders"
+                        active-component="Admin/Orders"
+                        :icon="IconsOrder"
+                        title="Orders"
+                        :count="5"
+                    />
+                    <DashboardCard
+                        route-name="customers"
+                        active-component="Admin/Customers"
+                        :icon="IconsUsers"
+                        title="Customers"
+                        :count="9"
+                    />
+                    <DashboardCard
+                        route-name="t-shirts"
+                        active-component="Admin/Tshirts"
+                        :icon="IconsTshirt"
+                        title="T-shirts"
+                        :count="9"
+                    />
+                    <DashboardChartCard
+                        route-name="revenue"
+                        active-component="Admin/Revenue"
+                        :icon="IconsMoney"
+                        title="Revenue"
+                        :count="9"
+                        :chartData="[30, 40, 35, 50, 49, 60, 70, 91, 25]"
+                    />
+
                 </div>
-            </header>
+            </div>
 
             <!-- Page Content -->
-            <main>
+            <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-4">
                 <slot />
             </main>
         </div>
