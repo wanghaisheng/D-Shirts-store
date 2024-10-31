@@ -82,7 +82,7 @@ onMounted(() => {
 <template>
     <Link :href="route(routeName)" preserve-scroll>
         <div
-            class="py-4 bg-slate-800 rounded-lg h-32 smooth overflow-hidden"
+            class="pt-4 bg-slate-800 rounded-lg h-32 smooth overflow-hidden flex flex-col justify-between"
             :class="[
                 $page.component.startsWith(activeComponent)
                     ? 'bg-slate-800'
@@ -107,14 +107,14 @@ onMounted(() => {
                 <!-- Revenue -->
                 <div class="w-1/2 text-end">
                     <p
-                        class="font-bold text-3xl transition-colors duration-200"
+                        class="font-bold text-2xl transition-colors duration-200"
                         :class="[
                             $page.component.startsWith(activeComponent)
                                 ? 'text-slate-100'
                                 : 'text-slate-400',
                         ]"
                     >
-                        {{ count }} $
+                        {{ count }}
                     </p>
                 </div>
             </div>

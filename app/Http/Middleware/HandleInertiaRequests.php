@@ -2,7 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Customer;
+use App\Models\Order;
+use App\Models\Tshirt;
 use Illuminate\Http\Request;
+use Illuminate\Support\Number;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -34,6 +38,11 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+
+            'orders_count' => Order::count(),
+            'customers_count' => Customer::count(),
+            'tshirts_count' => Tshirt::count(),
+            'revenue' => Number::currency(Order::whereNot('status', 'cancelled')->sum('total_price')),
         ];
     }
 }

@@ -10,6 +10,15 @@ import ResponsiveNavLink from "@/Components/Breeze/ResponsiveNavLink.vue";
 import { Link } from "@inertiajs/vue3";
 import DashboardCard from "@/Components/DashboardCard.vue";
 import DashboardChartCard from "@/Components/DashboardChartCard.vue";
+import { computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
+
+const page = usePage()
+
+const orders_count = computed(() => page.props.orders_count)
+const customers_count = computed(() => page.props.customers_count)
+const tshirts_count = computed(() => page.props.tshirts_count)
+const revenue = computed(() => page.props.revenue)
 
 const showingNavigationDropdown = ref(false);
 </script>
@@ -166,28 +175,28 @@ const showingNavigationDropdown = ref(false);
                         active-component="Admin/Orders"
                         :icon="IconsOrder"
                         title="Orders"
-                        :count="5"
+                        :count="orders_count"
                     />
                     <DashboardCard
                         route-name="customers"
                         active-component="Admin/Customers"
                         :icon="IconsUsers"
                         title="Customers"
-                        :count="9"
+                        :count="customers_count"
                     />
                     <DashboardCard
                         route-name="t-shirts"
                         active-component="Admin/Tshirts"
                         :icon="IconsTshirt"
                         title="T-shirts"
-                        :count="9"
+                        :count="tshirts_count"
                     />
                     <DashboardChartCard
                         route-name="revenue"
                         active-component="Admin/Revenue"
                         :icon="IconsMoney"
                         title="Revenue"
-                        :count="9"
+                        :count="revenue"
                         :chartData="[30, 40, 35, 50, 49, 60, 70, 91, 25]"
                     />
 
