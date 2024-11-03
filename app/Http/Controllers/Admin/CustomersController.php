@@ -12,7 +12,10 @@ class CustomersController extends Controller
     {
         $customers = Customer::when($request->search, function ($query) use ($request) {
             $query->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('email', 'like', '%' . $request->search . '%');
+                ->orWhere('email', 'like', '%' . $request->search . '%')
+                ->orWhere('country', 'like', '%' . $request->search . '%')
+                ->orWhere('city', 'like', '%' . $request->search . '%')
+                ->orWhere('address', 'like', '%' . $request->search . '%');
         })
         ->select('id', 'name', 'email', 'phone', 'country', 'city', 'address')
         ->withCount('orders')  // Adds an 'orders_count' attribute for the total order count

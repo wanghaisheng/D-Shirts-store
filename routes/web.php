@@ -18,9 +18,7 @@ Route::get('/', function () {
     ]);
 })->name('welcome');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Admin/Orders');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::redirect('/dashboard', '/admin/orders')->name('dashboard');
 
 Route::prefix('admin')->middleware('auth')->group(function(){
     Route::get('orders', [OrdersController::class, 'index'])->name('orders');

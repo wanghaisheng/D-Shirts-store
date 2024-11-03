@@ -8,6 +8,8 @@ class OrderTshirt extends Model
 {
     protected $fillable = ['order_id', 'tshirt_id'];
 
+    protected $table = 'order_tshirt';
+
     public function order()
     {
         return $this->belongsTo(Order::class);

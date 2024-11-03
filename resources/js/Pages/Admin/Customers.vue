@@ -15,11 +15,15 @@ const props = defineProps({
     searchTerm: String,
 });
 
+// This is the immediate search input value
 const search = ref(props.searchTerm);
+// This is the debounced search value that will be used for highlighting
+const debouncedSearch = ref(props.searchTerm);
 
 watch(
     search,
     debounce((query) => {
+        // Update the table
         router.get(
             route("customers"),
             {
@@ -30,10 +34,12 @@ watch(
                 preserveScroll: true,
             }
         );
+        // Update the debounced search value
+        debouncedSearch.value = query;
     }, 300)
 );
 
-const textHelpers = useTextHelpers()
+const textHelpers = useTextHelpers();
 
 </script>
 
@@ -89,7 +95,7 @@ const textHelpers = useTextHelpers()
                         </th>
                         <th
                             scope="col"
-                            class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase"
+                            class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase text-start"
                         >
                             Total Revenue
                         </th>
@@ -107,25 +113,24 @@ const textHelpers = useTextHelpers()
                             {{ customer.id }}
                         </td>
                         <td
-        class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
-        v-html="textHelpers.highlightText(textHelpers.limitText(customer.name, 20), search)"
-    />
-                        <!-- <td
-                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
-                        >
-                            {{ textHelpers.limitText(customer.name, 20) }}
-                        </td> -->
-                        <td
-                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
-                        >
-                            {{ textHelpers.limitText(customer.email, 30) }}
-                        </td>
+                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                v-html="textHelpers.highlightText(textHelpers.limitText(customer.name, 20), debouncedSearch)"
+            />
+                        
+                         <td
+                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                v-html="textHelpers.highlightText(textHelpers.limitText(customer.email, 30), debouncedSearch)"
+            />
                         <td
                             class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 w-12 overflow-hidden"
                         >
                             <p class="">
-                                <p class="font-bold">{{ customer.country }}, {{ customer.city }}</p>
-                                <p class="text-sm">{{ textHelpers.limitText(customer.address, 50) }}</p>
+                                <div class="flex items-center justify-start gap-1 ">
+                                    <p class="font-bold" v-html=" textHelpers.highlightText(customer.country, debouncedSearch)" />
+                                    <p>,</p>
+                                    <p class="font-bold" v-html=" textHelpers.highlightText(customer.city, debouncedSearch)" />
+                                </div>
+                                <p class="text-sm" v-html=" textHelpers.highlightText(textHelpers.limitText(customer.address, 50), debouncedSearch)" />
                             </p>
                         </td>
                         <td
@@ -136,7 +141,7 @@ const textHelpers = useTextHelpers()
                         <td
                             class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
                         >
-                            {{ customer.orders_sum_total_price }}
+                            {{ customer.orders_sum_total_price ?? 0 }}
                         </td>
                     </tr>
                 </tbody>
@@ -163,7 +168,7 @@ const textHelpers = useTextHelpers()
     <div class="flex items-center -space-x-px h-8 text-sm">
         <template v-for="(link, index) in customers.links" :key="link.url">
             <Link
-                preserve-scroll="true"
+                :preserve-scroll=true
                 v-if="link.url"
                 :href="link.url"
                 v-html="link.label"

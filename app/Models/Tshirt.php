@@ -17,4 +17,9 @@ class Tshirt extends Model
     {
         return $this->belongsToMany(Order::class);
     }
+
+    public function mainImage()
+    {
+        return $this->images->where('order', 1)->first();
+    }
 }

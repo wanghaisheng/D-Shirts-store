@@ -6,7 +6,7 @@ use App\Models\OrderTshirt;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class OrderTshirtsSeeder extends Seeder
+class OrderTshirtSeeder extends Seeder
 {
     /**
      * Run the database seeds.

@@ -33,7 +33,7 @@ const showingNavigationDropdown = ref(false);
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
-                                <Link :href="route('dashboard')">
+                                <Link :href="route('welcome')">
                                     <img
                                         src="../../../public/assets/logo/d-shirts.png"
                                         alt="d-shirts logo"
