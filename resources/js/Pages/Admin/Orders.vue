@@ -1,10 +1,11 @@
 <script setup>
 import Admin from "@/Layouts/Admin.vue";
-import { Head, router, Link } from "@inertiajs/vue3";
-import { debounce } from "lodash";
-import { ref, watch, onMounted } from "vue";
+import { Head, Link } from "@inertiajs/vue3";
+import { ref } from "vue";
 import { useTextHelpers } from "@/plugins/textHelpers";
 import Status from "@/Components/Status.vue";
+import CopyText from "@/Components/CopyText.vue";
+import EditOrder from "@/Components/EditOrder.vue";
 
 defineOptions({ layout: Admin });
 
@@ -13,36 +14,8 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-    searchTerm: String,
 });
 
-// This is the immediate search input value
-const search = ref(props.searchTerm);
-// This is the debounced search value that will be used for highlighting
-const debouncedSearch = ref(props.searchTerm);
-
-watch(
-    search,
-    debounce((query) => {
-        // Update the table
-        router.get(
-            route("orders"),
-            {
-                search: query,
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-            }
-        );
-        // Update the debounced search value
-        debouncedSearch.value = query;
-    }, 300)
-);
-
-onMounted(() => {
-    console.log(props.orders);
-});
 
 // Keep track of expanded rows
 const expandedRows = ref(new Set());
@@ -56,28 +29,18 @@ const toggleRow = (orderId) => {
     }
 };
 
-const textHelpers = useTextHelpers();
+const textHelper = useTextHelpers();
 </script>
 
 <template>
     <!-- Table -->
     <div class="pb-12">
         <Head title="Orders" />
-        <!-- Search -->
-        <div class="flex items-center justify-end my-3">
-            <input
-                v-model="search"
-                type="search"
-                name="search"
-                placeholder="Search"
-                class="w-64 h-10 px-3 border-b-2 border-gray-200 focus:border-gray-300 rounded-lg text-sm outline-none focus:ring-0"
-            />
-        </div>
 
         <!-- Table -->
         <div class="max-w-7xl overflow-x-auto table-container">
             <table
-                class="min-w-full divide-y divide-gray-200 bg-white shadow-md"
+                class="min-w-full divide-y divide-gray-200 bg-white shadow-md mt-16 table-auto"
             >
                 <thead class="">
                     <tr>
@@ -95,7 +58,7 @@ const textHelpers = useTextHelpers();
                         </th>
                         <th
                             scope="col"
-                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
+                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
                         >
                             N° of T-shirts
                         </th>
@@ -109,11 +72,11 @@ const textHelpers = useTextHelpers();
                             scope="col"
                             class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
                         >
-                            Status
+                            <p class="ms-2">Status</p>
                         </th>
                         <th
                             scope="col"
-                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
+                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
                         >
                             Tracking Number
                         </th>
@@ -125,7 +88,7 @@ const textHelpers = useTextHelpers();
                         </th>
                         <th
                             scope="col"
-                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-start"
+                            class="w-24 py-3 text-xs font-medium text-gray-500 uppercase text-center"
                         >
                             Actions
                         </th>
@@ -136,14 +99,16 @@ const textHelpers = useTextHelpers();
                         <!-- Main Order Row -->
                         <tr
                             @click="toggleRow(order.id)"
-                            class="hover:bg-gray-50 cursor-pointer"
+                            class="cursor-pointer"
                             :class="{
-                                'bg-slate-300 hover:bg-slate-300 smooth':
+                                ' bg-gray-100 hover:bg-gray-100':
                                     expandedRows.has(order.id),
+                                'hover:bg-gray-50 cursor-pointer ':
+                                    !expandedRows.has(order.id),
                             }"
                         >
                             <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
                             >
                                 <div class="flex items-center">
                                     <span class="mr-2">{{ order.id }}</span>
@@ -168,64 +133,82 @@ const textHelpers = useTextHelpers();
                                 </div>
                             </td>
                             <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
                             >
                                 <p class="font-bold">
-                                    {{ order.customer.name }}
+                                    {{
+                                        textHelper.limitText(
+                                            order.customer.name,
+                                            20
+                                        )
+                                    }}
                                 </p>
                                 <p class="text-sm">
-                                    {{ order.customer.email }}
+                                    {{
+                                        textHelper.limitText(
+                                            order.customer.email,
+                                            35
+                                        )
+                                    }}
                                 </p>
                             </td>
                             <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center align-middle"
                             >
                                 {{ order.tshirts.length }}
                             </td>
                             <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold"
+                                class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold text-center align-middle"
                             >
                                 {{ order.total_price + " $" ?? 0 }}
                             </td>
                             <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
                             >
                                 <Status :type="order.status" />
                             </td>
                             <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex items-center justify-center h-full"
                             >
-                                <p class="font-bold underline">
-                                    {{ order.tracking_number || "--" }}
+                                <CopyText
+                                    v-if="order.tracking_number"
+                                    :text="order.tracking_number"
+                                    message="Text copied!"
+                                    class="bg-slate-200 rounded-md text-slate-500 w-fit px-1"
+                                />
+                                <p
+                                    v-else
+                                    class="text-gray-500 text-sm text-center"
+                                >
+                                    N/A
                                 </p>
                             </td>
                             <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
                             >
                                 {{ order.created_at }}
                             </td>
-                            <td>
-                                <p>...</p>
+                            <td
+                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex items-center justify-center h-full"
+                            >
+                                <EditOrder :order-id="order.id" :status="order.status" :tracking-number="order.tracking_number"/>
                             </td>
                         </tr>
 
                         <!-- Expanded T-shirts Details Row -->
                         <tr v-if="expandedRows.has(order.id)">
-                            <td colspan="8" class="px-6 py-4 bg-slate-200">
-                                <div
-                                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                                >
+                            <td colspan="8" class="bg-slate-200 py-2 px-3">
+                                <div class="grid grid-cols-4 gap-3">
                                     <div
                                         v-for="tshirt in order.tshirts"
                                         :key="tshirt.id"
-                                        class="border rounded p-3 bg-white shadow-sm"
+                                        class="border rounded p-3 bg-white shadow-sm hover:shadow-md"
                                     >
                                         <div
-                                            class="flex items-center justify-between"
+                                            class="flex flex-col items-center justify-center"
                                         >
-                                            <p>{{ tshirt.title }}</p>
                                             <img
-                                                class="w-24 h-24 object-cover"
+                                                class="w-1/2 object-cover"
                                                 :src="
                                                     tshirt.images.find(
                                                         (img) => img.order === 1
@@ -233,6 +216,23 @@ const textHelpers = useTextHelpers();
                                                 "
                                                 alt=""
                                             />
+                                            <div
+                                                class="w-full text-center flex flex-col justify-center items-center"
+                                            >
+                                                <p class="font-bold">
+                                                    {{
+                                                        textHelper.limitText(
+                                                            tshirt.title,
+                                                            10
+                                                        )
+                                                    }}
+                                                </p>
+                                                <p
+                                                    class="text-green-100 font-semibold bg-green-700 p-1 rounded-sm w-fit"
+                                                >
+                                                    {{ tshirt.price }}$
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
