@@ -37,8 +37,8 @@ const copyToClipboard = async (event) => {
 <template>
   <div @click="copyToClipboard" class="flex items-center justify-center gap-2 cursor-pointer">
     <div class="font-bold relative">
-      <span v-if="copied" class="text-green-500 text-sm absolute -top-5">{{ message }}</span>
-      <p>{{ text }}</p>
+      <span v-if="copied" class="text-green-500 text-xs absolute -top-5 text-nowrap">{{ message }}</span>
+      <p class="text-sm">{{ props.text }}</p>
     </div>
   </div>
 </template>

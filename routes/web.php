@@ -21,9 +21,17 @@ Route::get('/', function () {
 Route::redirect('/dashboard', '/admin/orders')->name('dashboard');
 
 Route::prefix('admin')->middleware('auth')->group(function(){
+    // orders
     Route::get('orders', [OrdersController::class, 'index'])->name('orders');
+    Route::put('orders/{order}', [OrdersController::class, 'update'])->name('orders.update');
+
+    // customers
     Route::get('customers', [CustomersController::class, 'index'])->name('customers');
+
+    // t-shirts 
     Route::get('t-shirts', [TshirtsController::class, 'index'])->name('t-shirts');  
+
+    // revenue
     Route::get('revenue', [RevenueController::class, 'index'])->name('revenue');
 });
 

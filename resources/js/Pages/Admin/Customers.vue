@@ -89,15 +89,15 @@ const textHelpers = useTextHelpers();
                         </th>
                         <th
                             scope="col"
-                            class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase"
+                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
                         >
                             Orders
                         </th>
                         <th
                             scope="col"
-                            class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase text-start"
+                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-start"
                         >
-                            Total Revenue
+                            Revenue
                         </th>
                     </tr>
                 </thead>
@@ -134,14 +134,14 @@ const textHelpers = useTextHelpers();
                             </p>
                         </td>
                         <td
-                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center "
                         >
                             {{ customer.orders_count }}
                         </td>
                         <td
-                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                            class="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-center font-bold"
                         >
-                            {{ customer.orders_sum_total_price ?? 0 }}
+                            {{ customer.orders_sum_total_price ?? 0 }} $
                         </td>
                     </tr>
                 </tbody>
@@ -152,7 +152,7 @@ const textHelpers = useTextHelpers();
         <div class="my-4 flex justify-between items-center w-full">
             <!-- results -->
             <div>
-                <p class="text-base">
+                <p class="text-base text-slate-800">
                     Showing
                     <span class="text-green-600 font-bold text-lg">{{
                         customers.from

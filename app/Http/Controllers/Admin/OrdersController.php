@@ -24,8 +24,15 @@ class OrdersController extends Controller
                     'created_at' => $order->created_at->format('M d, Y H:i'),
                 ];
             });
-
-
         return inertia('Admin/Orders', ['orders' => $orders]);
+    }
+
+    public function update(Request $request, Order $order)
+    {
+        $order->update([
+            'status' => $request->status,
+            'tracking_number' => $request->tracking_number,
+        ]);
+        return back()->with('success', 'Order updated successfully.');
     }
 }

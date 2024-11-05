@@ -16,7 +16,6 @@ const props = defineProps({
     },
 });
 
-
 // Keep track of expanded rows
 const expandedRows = ref(new Set());
 
@@ -167,31 +166,35 @@ const textHelper = useTextHelpers();
                             >
                                 <Status :type="order.status" />
                             </td>
-                            <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex items-center justify-center h-full"
-                            >
-                                <CopyText
-                                    v-if="order.tracking_number"
-                                    :text="order.tracking_number"
-                                    message="Text copied!"
-                                    class="bg-slate-200 rounded-md text-slate-500 w-fit px-1"
-                                />
-                                <p
-                                    v-else
-                                    class="text-gray-500 text-sm text-center"
-                                >
-                                    N/A
-                                </p>
+                            <td class=" ">
+                                <div class="flex justify-center">
+                                    <CopyText
+                                        v-if="order.tracking_number"
+                                        :text="order.tracking_number"
+                                        message="Text copied!"
+                                        class="bg-slate-200 rounded-md text-slate-500 w-fit px-2"
+                                    />
+                                    <p
+                                        v-else
+                                        class="text-gray-500 text-sm text-center"
+                                    >
+                                        N/A
+                                    </p>
+                                </div>
                             </td>
                             <td
                                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
                             >
                                 {{ order.created_at }}
                             </td>
-                            <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex items-center justify-center h-full"
-                            >
-                                <EditOrder :order-id="order.id" :status="order.status" :tracking-number="order.tracking_number"/>
+                            <td class="">
+                                <div class="flex justify-center">
+                                    <EditOrder
+                                        :order-id="order.id"
+                                        :status="order.status"
+                                        :tracking-number="order.tracking_number"
+                                    />
+                                </div>
                             </td>
                         </tr>
 
@@ -247,7 +250,7 @@ const textHelper = useTextHelpers();
         <div class="my-4 flex justify-between items-center w-full">
             <!-- results -->
             <div>
-                <p class="text-base">
+                <p class="text-base text-slate-800">
                     Showing
                     <span class="text-green-600 font-bold text-lg">{{
                         orders.from

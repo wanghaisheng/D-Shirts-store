@@ -49,7 +49,7 @@ const currentType = types[props.type] || types.pending; // Default to 'idea' if 
 
 <template>
   <div
-    :class="`inline-flex gap-2 items-center ${currentType.bg} ${currentType.text} border ${currentType.border} text-xs font-medium px-2.5 py-0.5 rounded-full dark:${currentType.darkBg} dark:${currentType.darkText}`"
+    :class="`inline-flex gap-2 items-center ${currentType.bg} ${currentType.text} border ${currentType.border} text-xs font-medium px-2.5 py-0.5 rounded-full `"
   >
     <!-- //////////////////////// -->
     <!-- <span

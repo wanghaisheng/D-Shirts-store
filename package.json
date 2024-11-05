@@ -19,6 +19,8 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "apexcharts": "^4.0.0"
+        "@primevue/themes": "^4.2.1",
+        "apexcharts": "^4.0.0",
+        "primevue": "^4.2.1"
     }
 }
