@@ -2,6 +2,8 @@ import '../css/app.css';
 import './bootstrap';
 import PrimeVue from "primevue/config";
 import Aura from '@primevue/themes/aura';
+import ToastService from "primevue/toastservice";
+
 
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
@@ -31,6 +33,7 @@ createInertiaApp({
                     },
                 },
             })
+            .use(ToastService)
             .mount(el);
     },
     progress: {

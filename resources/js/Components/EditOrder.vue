@@ -3,10 +3,10 @@ import { ref } from "vue";
 import Dialog from "primevue/dialog";
 import Select from "primevue/select";
 import InputText from "primevue/inputtext";
-import Button from "primevue/button";
 import Pen from "@/Icons/Pen.vue";
-import { useForm } from '@inertiajs/vue3';
-
+import { useForm } from "@inertiajs/vue3";
+import { useToast } from "primevue/usetoast";
+import Toast from "primevue/toast";
 
 const props = defineProps({
     orderId: {
@@ -22,6 +22,15 @@ const props = defineProps({
         required: true,
     },
 });
+const toast = useToast();
+const show = () => {
+    toast.add({
+        severity: "info",
+        summary: "Info",
+        detail: "Message Content",
+        life: 3000,
+    });
+};
 
 const showModal = ref(false);
 
@@ -32,31 +41,38 @@ const statuses = ref([
     { name: "⛔ Cancelled", value: "cancelled" },
 ]);
 
-const selectedStatus = ref(
-    statuses.value.find((s) => s.value === props.status) || null
-);
+const form = useForm({
+    status: statuses.value.find((s) => s.value === props.status) || null,
+    tracking_number: props.trackingNumber,
+});
 
-const trackingNumber = ref(props.trackingNumber);
-
-const updateOrder = () => {
-    const form = useForm({
-        status: selectedStatus.value.value,
-        tracking_number: trackingNumber.value,
-    });
-
+function updateOrder() {
     form.put(route("orders.update", props.orderId), {
-        _method: 'put',
+        preserveState: false,
         onSuccess: () => {
             showModal.value = false;
-            emit("order-updated", form.data);
+            toast.add({
+                severity: "success",
+                summary: "Success",
+                detail: "Order updated successfully",
+                life: 3000,
+            });
         },
-        onError: (errors) => {
-            console.error("Error updating order:", errors);
+        onError: () => {
+            const errorMessage = Object.values(form.errors)[0];
+            toast.add({
+                severity: "error",
+                summary: "Error",
+                detail: errorMessage,
+                life: 3000,
+            });
         },
     });
-};
+}
 </script>
+
 <template>
+    <Toast />
     <div class="" @click.stop="showModal = !showModal">
         <Pen
             class="text-slate-500 w-16 h-16 hover:text-slate-600 hover:scale-125 smooth p-6"
@@ -69,11 +85,11 @@ const updateOrder = () => {
         header="Update Order"
         :style="{ width: '25rem' }"
     >
-        <div class="flex flex-col gap-4">
+        <form @submit.prevent="updateOrder" class="flex flex-col gap-4">
             <div class="flex flex-col justify-center">
                 <p>Status</p>
                 <Select
-                    v-model="selectedStatus"
+                    v-model="form.status"
                     :options="statuses"
                     optionLabel="name"
                     placeholder="Select a State"
@@ -83,10 +99,21 @@ const updateOrder = () => {
             </div>
             <div class="flex flex-col justify-center">
                 <p>Tracking</p>
-                <InputText type="text" v-model="trackingNumber" />
+                <InputText type="text" v-model="form.tracking_number" />
             </div>
 
-            <Button label="Save" @click="updateOrder" />
-        </div>
+            <button
+                class="w-full text-white rounded-md p-2"
+                :class="
+                    form.processing
+                        ? 'cursor-not-allowed bg-green-300'
+                        : 'bg-green-500'
+                "
+                :disabled="form.processing"
+            >
+                <span v-if="form.processing">updating...</span>
+                <span v-else>Update</span>
+            </button>
+        </form>
     </Dialog>
 </template>

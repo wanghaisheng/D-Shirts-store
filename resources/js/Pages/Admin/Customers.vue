@@ -149,9 +149,9 @@ const textHelpers = useTextHelpers();
         </div>
 
         <!-- table footer -->
-        <div class="my-4 flex justify-between items-center w-full">
+        <div class="my-4 flex md:flex-row flex-col md:gap-0 gap-2 justify-between items-center w-full">
             <!-- results -->
-            <div>
+            <div class="md:order-1 order-2">
                 <p class="text-base text-slate-800">
                     Showing
                     <span class="text-green-600 font-bold text-lg">{{

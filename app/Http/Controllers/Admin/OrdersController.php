@@ -27,12 +27,17 @@ class OrdersController extends Controller
         return inertia('Admin/Orders', ['orders' => $orders]);
     }
 
-    public function update(Request $request, Order $order)
+    public function update(Request $request, $orderId)
     {
-        $order->update([
-            'status' => $request->status,
-            'tracking_number' => $request->tracking_number,
+        $request->validate([
+            'status' => 'required',
+            'tracking_number' => 'min:8',
         ]);
-        return back()->with('success', 'Order updated successfully.');
+        $order = Order::findOrFail($orderId);
+        $order->status = $request->status['value'];
+        $order->tracking_number = $request->tracking_number;
+        $order->save();
+
+        return redirect()->route('orders');
     }
 }
