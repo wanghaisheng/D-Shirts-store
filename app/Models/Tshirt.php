@@ -22,4 +22,10 @@ class Tshirt extends Model
     {
         return $this->images->where('order', 1)->first();
     }
+    public function otherImages()
+    {
+        return $this->images->filter(function ($image) {
+            return $image->id !== $this->mainImage()?->id;
+        });
+    }
 }

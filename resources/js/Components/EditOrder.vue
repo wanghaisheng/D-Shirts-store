@@ -103,7 +103,7 @@ function updateOrder() {
             </div>
 
             <button
-                class="w-full text-white rounded-md p-2"
+                class="btn"
                 :class="
                     form.processing
                         ? 'cursor-not-allowed bg-green-300'
