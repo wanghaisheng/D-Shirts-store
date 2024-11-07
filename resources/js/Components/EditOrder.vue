@@ -23,14 +23,7 @@ const props = defineProps({
     },
 });
 const toast = useToast();
-const show = () => {
-    toast.add({
-        severity: "info",
-        summary: "Info",
-        detail: "Message Content",
-        life: 3000,
-    });
-};
+
 
 const showModal = ref(false);
 

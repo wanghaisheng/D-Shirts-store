@@ -1,35 +1,27 @@
-<script setup></script>
+<script setup>
+import { ref } from "vue";
+import UploadImage from "@/Components/UploadImage.vue";
+import { useForm } from "@inertiajs/vue3";
+
+
+
+const form = useForm({
+    mainImage: mainImageHere,
+});
+</script>
 
 <template>
-    <tbody class="divide-y divide-gray-200">
-        <template v-for="order in orders.data" :key="order.id">
-            <tr class="cursor-pointer">
-                <td
-                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center align-middle"
-                >
-                    {{ order.tshirts.length }}
-                </td>
-                <td
-                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
-                >
-                    <Status :type="order.status" />
-                </td>
-
-                <td
-                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
-                >
-                    {{ order.created_at }}
-                </td>
-                <td
-                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex items-center justify-center h-full"
-                >
-                    <EditOrder
-                        :order-id="order.id"
-                        :status="order.status"
-                        :tracking-number="order.tracking_number"
-                    />
-                </td>
-            </tr>
-        </template>
-    </tbody>
+    <div class="">
+        <form class="p-2" @submit.prevent="form.post('/admin/t-shirts')">
+            <div class="w-full flex">
+                <UploadImage
+                    v-model="mainImage"
+                    width="w-44"
+                    height="h-44"
+                    label="Main Image"
+                />
+            </div>
+            <button type="submit">Add T-Shirt</button>
+        </form>
+    </div>
 </template>
