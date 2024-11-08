@@ -7,15 +7,17 @@ use App\Http\Controllers\Controller;
 use App\Models\ShirtImage;
 use App\Models\Tshirt;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class TshirtsController extends Controller
 {
     public function index()
     {
-        $tshirts = Tshirt::with('images')->get()->map(function ($tshirt) {
+        $tshirts = Tshirt::with('images')->orderBy('updated_at', 'desc')->get()->map(function ($tshirt) {
             return [
                 'id' => $tshirt->id,
                 'title' => $tshirt->title,
+                'description' => $tshirt->description,
                 'price' => $tshirt->price,
                 'mainImage' => $tshirt->mainImage(),
                 'otherImages' => $tshirt->otherImages()
@@ -30,7 +32,7 @@ class TshirtsController extends Controller
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'description' => 'required|string|max:255',
+            'description' => 'required|string',
             'mainImage' => 'required|image|max:1024',
             'secondImage' => 'nullable|image|max:1024',
             'thirdImage' => 'nullable|image|max:1024',
@@ -47,7 +49,7 @@ class TshirtsController extends Controller
 
         // Generate folder name from the first 3 words of the title
         $folderName = TitleToFolderName::convert($validatedData['title']);
-        
+
         // Array of images with their corresponding order
         $images = [
             'mainImage' => 1,
@@ -82,6 +84,78 @@ class TshirtsController extends Controller
         return redirect()->route('t-shirts');
     }
 
+    public function update(Request $request, Tshirt $tshirt)
+    {
+        // Validate request data
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'description' => 'required|string',
+            'mainImage' => 'nullable|max:1024',
+            'secondImage' => 'nullable|max:1024',
+            'thirdImage' => 'nullable|max:1024',
+            'forthImage' => 'nullable|max:1024',
+            'fifthImage' => 'nullable|max:1024',
+        ]);
 
+        // Folder name remains the same from the creation
+        $folderName = TitleToFolderName::convert($tshirt->title);
 
+        // Check and update only if there are changes in non-image fields
+        if (
+            $tshirt->title !== $validatedData['title'] ||
+            $tshirt->price !== $validatedData['price'] ||
+            $tshirt->description !== $validatedData['description']
+        ) {
+            $tshirt->title = $validatedData['title'];
+            $tshirt->price = $validatedData['price'];
+            $tshirt->description = $validatedData['description'];
+            $tshirt->save();
+        }
+
+        
+
+        // Array of images with their corresponding order and fixed names
+        $images = [
+            'mainImage' => 1,
+            'secondImage' => 2,
+            'thirdImage' => 3,
+            'forthImage' => 4,
+            'fifthImage' => 5,
+        ];
+
+        // Loop through each image input
+        foreach ($images as $imageKey => $order) {
+            if ($request->hasFile($imageKey)) {
+                $existingImage = $tshirt->images()->where('order', $order)->first();
+
+                // Delete the existing image file from storage if it exists
+                if ($existingImage) {
+                    Storage::disk('public')->delete($existingImage->url);
+                }
+
+                $file = $request->file($imageKey);
+                $extension = $file->getClientOriginalExtension();
+                $filename = "{$imageKey}.{$extension}";
+
+                // Store the new image and update the path in the database
+                $path = $file->storeAs("tshirts/{$folderName}", $filename, 'public');
+
+                if ($existingImage) {
+                    // Update existing ShirtImage
+                    $existingImage->url = '/storage/' . $path;
+                    $existingImage->save();
+                } else {
+                    // Create a new ShirtImage if not exists
+                    $tshirt->images()->create([
+                        'order' => $order,
+                        'url' => '/storage/' . $path,
+                    ]);
+                }
+            }
+        }
+
+        // Redirect to the t-shirts route
+        return redirect()->route('t-shirts');
+    }
 }

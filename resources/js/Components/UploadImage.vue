@@ -9,6 +9,7 @@ const props = defineProps({
     height: { type: String, default: "h-24" },
     maxFileSize: { type: Number, default: 5 * 1024 * 1024 }, // 5MB
     acceptedFileTypes: { type: String, default: "image/*" },
+    defaultImage: { type: String, default: null },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -81,6 +82,14 @@ function clearImage() {
             <img
                 v-if="imagePreview"
                 :src="imagePreview"
+                alt="Image Preview"
+                class="shadow-md rounded-xl w-full h-full object-cover bg-white border-2 border-slate-600 transition-all duration-200"
+                style="filter: grayscale(10%)"
+            />
+
+            <img
+                v-else-if="defaultImage"
+                :src="defaultImage"
                 alt="Image Preview"
                 class="shadow-md rounded-xl w-full h-full object-cover bg-white border-2 border-slate-600 transition-all duration-200"
                 style="filter: grayscale(10%)"
