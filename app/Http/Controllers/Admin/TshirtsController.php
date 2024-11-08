@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\TitleToFolderName;
 use App\Http\Controllers\Controller;
 use App\Models\ShirtImage;
 use App\Models\Tshirt;
@@ -45,8 +46,8 @@ class TshirtsController extends Controller
         $tshirt->save();
 
         // Generate folder name from the first 3 words of the title
-        $folderName = strtolower(implode('_', array_slice(explode(' ', $validatedData['title']), 0, 3)));
-
+        $folderName = TitleToFolderName::convert($validatedData['title']);
+        
         // Array of images with their corresponding order
         $images = [
             'mainImage' => 1,

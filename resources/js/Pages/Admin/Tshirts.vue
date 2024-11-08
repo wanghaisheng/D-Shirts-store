@@ -7,6 +7,11 @@ import UploadImage from "@/Components/UploadImage.vue";
 import { useForm } from "@inertiajs/vue3";
 import { useToast } from "primevue/usetoast";
 import Toast from "primevue/toast";
+import InputText from "primevue/inputtext";
+import FloatLabel from "primevue/floatlabel";
+import InputNumber from "primevue/inputnumber";
+import Textarea from "primevue/textarea";
+import { useTextHelpers } from "@/plugins/textHelpers";
 
 defineOptions({ layout: Admin });
 
@@ -16,13 +21,16 @@ const props = defineProps({
     },
 });
 
+const textHelper = useTextHelpers();
+
+
 const toast = useToast();
 const showAddTshirtModal = ref(false);
 
 // Initialize form data
 const form = useForm({
     title: "",
-    price: "",
+    price: 24,
     description: "",
     mainImage: null,
     secondImage: null,
@@ -78,6 +86,7 @@ function handleSubmit() {
         <Toast />
         <!-- Add T-Shirt Modal -->
         <Dialog
+            class="mx-2"
             v-model:visible="showAddTshirtModal"
             modal
             header="Create New T-Shirt"
@@ -85,31 +94,50 @@ function handleSubmit() {
         >
             <form class="p-2" @submit.prevent="handleSubmit">
                 <!-- Infos Section -->
-                <div class="w-full flex gap-2 my-6">
-                    <input
-                        type="text"
-                        placeholder="Title"
-                        v-model="form.title"
-                        class="w-4/5"
-                    />
-                    <input
-                        type="text"
-                        placeholder="Price"
-                        v-model="form.price"
-                        class="w-1/5"
-                    />
+                <div class="mb-4">
+                    <div
+                        class="w-full flex md:flex-row flex-col md:gap-2 gap-6 my-6"
+                    >
+                        <FloatLabel variant="on" class="md:w-3/4 w-full">
+                            <InputText
+                                id="title"
+                                v-model="form.title"
+                                class="w-full"
+                            />
+                            <label for="title">T-shirt Title</label>
+                        </FloatLabel>
+                        <div class="md:w-1/4 w-full">
+                            <InputNumber
+                                class="w-full"
+                                min="0"
+                                v-model="form.price"
+                                inputId="price"
+                                showButtons
+                                mode="currency"
+                                currency="USD"
+                                fluid
+                            />
+                        </div>
+                    </div>
+                    <FloatLabel variant="on" class="w-full">
+                        <Textarea
+                            class="w-full"
+                            id="description"
+                            v-model="form.description"
+                            rows="3"
+                            cols="30"
+                            style="resize: none"
+                        />
+                        <label for="description">T-shirt Description</label>
+                    </FloatLabel>
                 </div>
-                <textarea
-                    placeholder="Description"
-                    v-model="form.description"
-                    class="w-full h-full"
-                ></textarea>
+
                 <!-- Images Section -->
                 <div
-                    class="w-full h-[30rem] flex justify-center items-center gap-4"
+                    class="w-full md:h-[30rem] h-full flex md:flex-row flex-col justify-center items-center gap-4 mb-4"
                 >
                     <!-- Main Image -->
-                    <div class="w-1/2 h-full">
+                    <div class="md:w-1/2 w-full">
                         <UploadImage
                             id="mainImage"
                             width="w-full"
@@ -120,7 +148,9 @@ function handleSubmit() {
                     </div>
 
                     <!-- Other Images -->
-                    <div class="w-1/2 h-[30rem] grid grid-cols-2 gap-4">
+                    <div
+                        class="md:w-1/2 w-full h-[30rem] grid grid-cols-2 gap-4"
+                    >
                         <UploadImage
                             id="secondImage"
                             width="w-full"
@@ -153,8 +183,17 @@ function handleSubmit() {
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="btn w-full mt-3">
-                    Add T-Shirt
+                <button
+                    class="rounded-md p-2 w-full text-white text-base font-semibold transition-all duration-100 ease-in-out"
+                    :class="
+                        form.processing
+                            ? 'cursor-not-allowed bg-slate-500'
+                            : ' bg-green-500 hover:bg-green-600'
+                    "
+                    :disabled="form.processing"
+                >
+                    <span v-if="form.processing">Creating...</span>
+                    <span v-else>Create the T-shirt</span>
                 </button>
             </form>
         </Dialog>
@@ -168,7 +207,9 @@ function handleSubmit() {
             </button>
         </div>
 
-        <div class="w-full overflow-x-auto grid grid-cols-4 gap-4 pb-8 pt-2">
+        <div
+            class="w-full overflow-x-auto grid lg:grid-cols-3 md:grid-cols-2 grid-flow-cols-1 gap-6 pb-8 pt-6"
+        >
             <div
                 v-for="tshirt in tshirts"
                 :key="tshirt.id"
@@ -178,7 +219,7 @@ function handleSubmit() {
                     :src="tshirt.mainImage.url"
                     class="w-full h-full object-cover rounded-md"
                 />
-                <p class="text-lg font-bold">{{ tshirt.title }}</p>
+                <p class="text-lg font-bold text-nowrap">{{ textHelper.limitText(tshirt.title, 30) }}</p>
                 <p class="text-lg font-bold">{{}}</p>
                 <p class="text-sm font-bold text-green-600">
                     ${{ tshirt.price }}
