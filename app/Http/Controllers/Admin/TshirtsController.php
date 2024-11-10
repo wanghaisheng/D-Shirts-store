@@ -13,14 +13,15 @@ class TshirtsController extends Controller
 {
     public function index()
     {
-        $tshirts = Tshirt::with('images')->orderBy('updated_at', 'desc')->get()->map(function ($tshirt) {
+        $tshirts = Tshirt::with('images')->orderBy('created_at', 'desc')->get()->map(function ($tshirt) {
             return [
                 'id' => $tshirt->id,
                 'title' => $tshirt->title,
                 'description' => $tshirt->description,
                 'price' => $tshirt->price,
-                'mainImage' => $tshirt->mainImage(),
-                'otherImages' => $tshirt->otherImages()
+                'listed' => $tshirt->listed,
+                'mainImage' => $tshirt->getMainImage(),
+                'otherImages' => $tshirt->getOtherImages()
             ];
         });
         return inertia('Admin/Tshirts', ['tshirts' => $tshirts]);
@@ -86,11 +87,13 @@ class TshirtsController extends Controller
 
     public function update(Request $request, Tshirt $tshirt)
     {
+        // dd($request->all());
         // Validate request data
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'description' => 'required|string',
+            'listed' => 'required|boolean',
             'mainImage' => 'nullable|max:1024',
             'secondImage' => 'nullable|max:1024',
             'thirdImage' => 'nullable|max:1024',
@@ -98,24 +101,28 @@ class TshirtsController extends Controller
             'fifthImage' => 'nullable|max:1024',
         ]);
 
-        // Folder name remains the same from the creation
+        // Folder name based on the original title
         $folderName = TitleToFolderName::convert($tshirt->title);
 
-        // Check and update only if there are changes in non-image fields
-        if (
-            $tshirt->title !== $validatedData['title'] ||
-            $tshirt->price !== $validatedData['price'] ||
-            $tshirt->description !== $validatedData['description']
-        ) {
-            $tshirt->title = $validatedData['title'];
-            $tshirt->price = $validatedData['price'];
-            $tshirt->description = $validatedData['description'];
-            $tshirt->save();
+        // Only update text fields if they have changed
+        $changes = [];
+        if ($tshirt->title !== $validatedData['title']) {
+            $changes['title'] = $validatedData['title'];
+        }
+        if ($tshirt->price !== (float) $validatedData['price']) {
+            $changes['price'] = (float) $validatedData['price'];
+        }
+        if ($tshirt->description !== $validatedData['description']) {
+            $changes['description'] = $validatedData['description'];
+        }
+        if ($tshirt->listed !== $validatedData['listed']) {
+            $changes['listed'] = $validatedData['listed'];
+        }
+        if (!empty($changes)) {
+            $tshirt->update($changes);
         }
 
-        
-
-        // Array of images with their corresponding order and fixed names
+        // Array of images with their corresponding order and field names
         $images = [
             'mainImage' => 1,
             'secondImage' => 2,
@@ -126,34 +133,39 @@ class TshirtsController extends Controller
 
         // Loop through each image input
         foreach ($images as $imageKey => $order) {
-            if ($request->hasFile($imageKey)) {
-                $existingImage = $tshirt->images()->where('order', $order)->first();
+            // Find the current image path in the database
+            $currentImage = ShirtImage::where('tshirt_id', $tshirt->id)->where('order', $order)->first();
+            $currentImagePath = $currentImage ? $currentImage->url : null;
 
-                // Delete the existing image file from storage if it exists
-                if ($existingImage) {
-                    Storage::disk('public')->delete($existingImage->url);
+            // Check if a new file is uploaded for this image
+            if ($request->hasFile($imageKey)) {
+                // Remove the old image from storage if it exists
+                if ($currentImagePath) {
+                    Storage::delete($currentImagePath);
                 }
 
+                // Store the new image
                 $file = $request->file($imageKey);
                 $extension = $file->getClientOriginalExtension();
                 $filename = "{$imageKey}.{$extension}";
+                $newImagePath = $file->storeAs("tshirts/{$folderName}", $filename, 'public');
 
-                // Store the new image and update the path in the database
-                $path = $file->storeAs("tshirts/{$folderName}", $filename, 'public');
-
-                if ($existingImage) {
-                    // Update existing ShirtImage
-                    $existingImage->url = '/storage/' . $path;
-                    $existingImage->save();
-                } else {
-                    // Create a new ShirtImage if not exists
-                    $tshirt->images()->create([
-                        'order' => $order,
-                        'url' => '/storage/' . $path,
-                    ]);
+                // Update or create the database record for this image
+                ShirtImage::updateOrCreate(
+                    ['tshirt_id' => $tshirt->id, 'order' => $order],
+                    ['url' => '/storage/' . $newImagePath]
+                );
+            } elseif ($request->input($imageKey) === null
+            ) {
+                // If the field is null, remove from storage and database
+                if ($currentImagePath) {
+                    Storage::delete($currentImagePath);
+                    ShirtImage::where('tshirt_id', $tshirt->id)->where('order', $order)->delete();
                 }
             }
+            // If "originalImage" is set, we leave the existing image unchanged
         }
+
 
         // Redirect to the t-shirts route
         return redirect()->route('t-shirts');

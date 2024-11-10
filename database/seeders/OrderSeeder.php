@@ -21,6 +21,7 @@ class OrderSeeder extends Seeder
                     'total_price' => 10,
                     'status' => 'pending',
                     'tracking_number' => '123456789',
+                    'created_at' => now()->subDays(1),
                 ],
                 [
                     'customer_id' => 2,
@@ -28,6 +29,7 @@ class OrderSeeder extends Seeder
                     'total_price' => 20,
                     'status' => 'processing',
                     'tracking_number' => '987654321',
+                    'created_at' => now()->subDays(2),
                 ]
             ]
         );

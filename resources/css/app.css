@@ -9,4 +9,7 @@
     .btn{
         @apply rounded-md p-2 text-white text-sm font-semibold bg-green-500 hover:bg-green-600 transition-all duration-100 ease-in-out;
     }
+    .btn-danger{
+        @apply rounded-md p-2 text-white text-sm font-semibold bg-red-500 hover:bg-red-600 transition-all duration-100 ease-in-out;
+    }
 }

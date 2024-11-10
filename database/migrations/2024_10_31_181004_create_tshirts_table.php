@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->float('price');
+            $table->boolean('listed')->default(true);
             $table->timestamps();
         });
     }

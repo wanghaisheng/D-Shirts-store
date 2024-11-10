@@ -11,8 +11,13 @@ import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import InputNumber from "primevue/inputnumber";
 import Textarea from "primevue/textarea";
+import ToggleSwitch from "primevue/toggleswitch";
 import { useTextHelpers } from "@/plugins/textHelpers";
-import { DynamicDialog } from "primevue";
+import Pen from "@/Icons/Pen.vue";
+import Remove from "@/Icons/Remove.vue";
+import ListingStatus from "@/Components/ListingStatus.vue";
+import ConfirmDialog from "primevue/confirmdialog";
+import { useConfirm } from "primevue/useconfirm";
 
 defineOptions({ layout: Admin });
 
@@ -28,8 +33,8 @@ const toast = useToast();
 const showAddTshirtModal = ref(false);
 const showEditTshirtModal = ref(false);
 
-// Initialize form data
-const form = useForm({
+// Initialize creation form
+const createForm = useForm({
     title: "",
     price: 24,
     description: "",
@@ -44,19 +49,24 @@ function handleCreateTshirt() {
     const formData = new FormData();
 
     // Append images to formData
-    if (form.mainImage) formData.append("mainImage", form.mainImage);
-    if (form.secondImage) formData.append("secondImage", form.secondImage);
-    if (form.thirdImage) formData.append("thirdImage", form.thirdImage);
-    if (form.forthImage) formData.append("forthImage", form.forthImage);
-    if (form.fifthImage) formData.append("fifthImage", form.fifthImage);
+    if (createForm.mainImage)
+        formData.append("mainImage", createForm.mainImage);
+    if (createForm.secondImage)
+        formData.append("secondImage", createForm.secondImage);
+    if (createForm.thirdImage)
+        formData.append("thirdImage", createForm.thirdImage);
+    if (createForm.forthImage)
+        formData.append("forthImage", createForm.forthImage);
+    if (createForm.fifthImage)
+        formData.append("fifthImage", createForm.fifthImage);
 
     // Append other form fields to formData
-    formData.append("title", form.title);
-    formData.append("price", form.price);
-    formData.append("description", form.description);
+    formData.append("title", createForm.title);
+    formData.append("price", createForm.price);
+    formData.append("description", createForm.description);
 
     // Use Inertia to post the formData
-    form.post("/admin/t-shirts", {
+    createForm.post("/admin/t-shirts", {
         data: formData,
         forceFormData: true, // Needed to ensure multipart/form-data
         preserveState: false,
@@ -69,7 +79,7 @@ function handleCreateTshirt() {
             });
         },
         onError: () => {
-            const errorMessage = Object.values(form.errors)[0];
+            const errorMessage = Object.values(createForm.errors)[0];
             toast.add({
                 severity: "error",
                 summary: "Error",
@@ -80,10 +90,12 @@ function handleCreateTshirt() {
     });
 }
 
+// Initialize edit form
 const editForm = useForm({
     title: "",
-    price: 24,
+    price: 0,
     description: "",
+    listed: true,
     mainImage: null,
     secondImage: null,
     thirdImage: null,
@@ -91,81 +103,40 @@ const editForm = useForm({
     fifthImage: null,
 });
 
+// Edit form preview images
+const mainImagePrev = ref(null);
+const secondImagePrev = ref(null);
+const thirdImagePrev = ref(null);
+const forthImagePrev = ref(null);
+const fifthImagePrev = ref(null);
+
 function openEditModal(tshirt) {
+    console.log(tshirt.listed);
     showEditTshirtModal.value = true;
+
     editForm.id = tshirt.id;
     editForm.title = tshirt.title;
     editForm.price = tshirt.price;
     editForm.description = tshirt.description;
-    editForm.mainImage = tshirt.mainImage;
+    editForm.listed = Boolean(tshirt.listed);
 
-    switch (tshirt.otherImages[1]?.order) {
-        case 2:
-            editForm.secondImage = tshirt.otherImages[1].url;
-            break;
-        case 3:
-            editForm.thirdImage = tshirt.otherImages[1].url;
-            break;
-        case 4:
-            editForm.forthImage = tshirt.otherImages[1].url;
-            break;
-        case 5:
-            editForm.fifthImage = tshirt.otherImages[1].url;
-            break;
-    }
+    editForm.mainImage = "originalImage";
+    editForm.secondImage = "originalImage";
+    editForm.thirdImage = "originalImage";
+    editForm.forthImage = "originalImage";
+    editForm.fifthImage = "originalImage";
 
-    switch (tshirt.otherImages[2]?.order) {
-        case 2:
-            editForm.secondImage = tshirt.otherImages[2].url;
-            break;
-        case 3:
-            editForm.thirdImage = tshirt.otherImages[2].url;
-            break;
-        case 4:
-            editForm.forthImage = tshirt.otherImages[2].url;
-            break;
-        case 5:
-            editForm.fifthImage = tshirt.otherImages[2];
-            break;
-    }
-
-    switch (tshirt.otherImages[3]?.order) {
-        case 2:
-            editForm.secondImage = tshirt.otherImages[3].url;
-            break;
-        case 3:
-            editForm.thirdImage = tshirt.otherImages[3].url;
-            break;
-        case 4:
-            editForm.forthImage = tshirt.otherImages[3].url;
-            break;
-        case 5:
-            editForm.fifthImage = tshirt.otherImages[3];
-            break;
-    }
-    switch (tshirt.otherImages[4]?.order) {
-        case 2:
-            editForm.secondImage = tshirt.otherImages[4].url;
-            break;
-        case 3:
-            editForm.thirdImage = tshirt.otherImages[4].url;
-            break;
-        case 4:
-            editForm.forthImage = tshirt.otherImages[4].url;
-            break;
-        case 5:
-            editForm.fifthImage = tshirt.otherImages[4];
-            break;
-    }
-
-    
-        
-
-    console.log(tshirt.otherImages[1].url);
-    console.log(editForm.secondImage);
-    console.log(editForm.thirdImage);
-    console.log(editForm.forthImage);
-    console.log(editForm.fifthImage);
+    // preview images
+    const imagesArray = Object.values(tshirt.otherImages);
+    mainImagePrev.value = tshirt.mainImage?.url || null;
+    secondImagePrev.value =
+        imagesArray.find((img) => img.order === 2)?.url || null;
+    thirdImagePrev.value =
+        imagesArray.find((img) => img.order === 3)?.url || null;
+    forthImagePrev.value =
+        imagesArray.find((img) => img.order === 4)?.url || null;
+    fifthImagePrev.value =
+        imagesArray.find((img) => img.order === 5)?.url || null;
 }
 
 function handleUpdateTshirt() {
@@ -187,6 +158,7 @@ function handleUpdateTshirt() {
     editFormData.append("title", editForm.title);
     editFormData.append("price", editForm.price);
     editFormData.append("description", editForm.description);
+    editFormData.append("listed", editForm.listed);
 
     // Use Inertia to post the editFormData
     editForm.post(route("t-shirts.update", editForm.id), {
@@ -212,12 +184,55 @@ function handleUpdateTshirt() {
         },
     });
 }
+
+const confirmDelete = useConfirm();
+const confirmDeleteTshirt = () => {
+    confirmDelete.require({
+        group: 'templating',
+        message: "Are you sure you want to proceed?",
+        header: "Danger Zone",
+        // icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: "Cancel",
+            severity: "secondary",
+            outlined: true,
+        },
+        acceptProps: {
+            label: "Save",
+        },
+        accept: () => {
+            toast.add({
+                severity: "info",
+                summary: "Confirmed",
+                detail: "You have accepted",
+                life: 3000,
+            });
+        },
+        reject: () => {
+            toast.add({
+                severity: "error",
+                summary: "Rejected",
+                detail: "You have rejected",
+                life: 3000,
+            });
+        },
+    });
+};
 </script>
 
 <template>
     <div class="">
         <Head title="T-Shirts" />
         <Toast />
+        <ConfirmDialog group="templating">
+            <template #message="slotProps">
+                <div
+                    class="flex flex-col items-center w-full gap-4 border-b border-surface-200 dark:border-surface-700"
+                >
+                    <p class="bg-red-500">write here</p>
+                </div>
+            </template>
+        </ConfirmDialog>
 
         <!-- Add T-Shirt Modal -->
         <Dialog
@@ -236,7 +251,7 @@ function handleUpdateTshirt() {
                         <FloatLabel variant="on" class="md:w-3/4 w-full">
                             <InputText
                                 id="title"
-                                v-model="form.title"
+                                v-model="createForm.title"
                                 class="w-full"
                             />
                             <label for="title">T-shirt Title</label>
@@ -245,7 +260,7 @@ function handleUpdateTshirt() {
                             <InputNumber
                                 class="w-full"
                                 :min="0"
-                                v-model="form.price"
+                                v-model="createForm.price"
                                 inputId="price"
                                 showButtons
                                 mode="currency"
@@ -258,7 +273,7 @@ function handleUpdateTshirt() {
                         <Textarea
                             class="w-full"
                             id="description"
-                            v-model="form.description"
+                            v-model="createForm.description"
                             rows="3"
                             cols="30"
                             style="resize: none"
@@ -278,7 +293,7 @@ function handleUpdateTshirt() {
                             width="w-full"
                             height="h-[30rem]"
                             label="Main Image"
-                            v-model="form.mainImage"
+                            v-model="createForm.mainImage"
                         />
                     </div>
 
@@ -291,28 +306,28 @@ function handleUpdateTshirt() {
                             width="w-full"
                             height="h-[14.5rem]"
                             label="Second Image"
-                            v-model="form.secondImage"
+                            v-model="createForm.secondImage"
                         />
                         <UploadImage
                             id="thirdImage"
                             width="w-full"
                             height="h-[14.5rem]"
                             label="Third Image"
-                            v-model="form.thirdImage"
+                            v-model="createForm.thirdImage"
                         />
                         <UploadImage
                             id="forthImage"
                             width="w-full"
                             height="h-[14.5rem]"
                             label="Forth Image"
-                            v-model="form.forthImage"
+                            v-model="createForm.forthImage"
                         />
                         <UploadImage
                             id="fifthImage"
                             width="w-full"
                             height="h-[14.5rem]"
                             label="Fifth Image"
-                            v-model="form.fifthImage"
+                            v-model="createForm.fifthImage"
                         />
                     </div>
                 </div>
@@ -321,13 +336,13 @@ function handleUpdateTshirt() {
                 <button
                     class="rounded-md p-2 w-full text-white text-base font-semibold transition-all duration-100 ease-in-out"
                     :class="
-                        form.processing
+                        createForm.processing
                             ? 'cursor-not-allowed bg-slate-500'
                             : ' bg-green-500 hover:bg-green-600'
                     "
-                    :disabled="form.processing"
+                    :disabled="createForm.processing"
                 >
-                    <span v-if="form.processing">Creating...</span>
+                    <span v-if="createForm.processing">Creating...</span>
                     <span v-else>Create the T-shirt</span>
                 </button>
             </form>
@@ -342,12 +357,12 @@ function handleUpdateTshirt() {
             :style="{ width: '70rem' }"
         >
             <form class="p-2" @submit.prevent="handleUpdateTshirt">
-                <!-- Infos Section -->
                 <div class="mb-4">
+                    <!-- Title, Price, and Listed Section -->
                     <div
                         class="w-full flex md:flex-row flex-col md:gap-2 gap-6 my-6"
                     >
-                        <FloatLabel variant="on" class="md:w-3/4 w-full">
+                        <FloatLabel variant="on" class="md:w-9/12 w-full">
                             <InputText
                                 id="title"
                                 v-model="editForm.title"
@@ -355,7 +370,7 @@ function handleUpdateTshirt() {
                             />
                             <label for="title">T-shirt Title</label>
                         </FloatLabel>
-                        <div class="md:w-1/4 w-full">
+                        <div class="md:w-2/12 w-full">
                             <InputNumber
                                 class="w-full"
                                 :min="0"
@@ -367,7 +382,21 @@ function handleUpdateTshirt() {
                                 fluid
                             />
                         </div>
+                        <div
+                            class="md:w-1/12 w-full flex flex-col justify-center md:items-center items-start gap-0 md:order-last order-first"
+                        >
+                            <label class="md:text-xs text-base" for="listed">{{
+                                editForm.listed ? "Listed" : "Unlisted"
+                            }}</label>
+                            <ToggleSwitch
+                                v-model="editForm.listed"
+                                id="listed"
+                                class="md:w-full w-full"
+                            />
+                        </div>
                     </div>
+
+                    <!-- Description Section -->
                     <FloatLabel variant="on" class="w-full">
                         <Textarea
                             class="w-full"
@@ -379,6 +408,8 @@ function handleUpdateTshirt() {
                         />
                         <label for="description">T-shirt Description</label>
                     </FloatLabel>
+
+                    <!-- Images Section -->
                     <div
                         class="w-full md:h-[30rem] h-full flex md:flex-row flex-col justify-center items-center gap-4 mb-4"
                     >
@@ -390,7 +421,7 @@ function handleUpdateTshirt() {
                                 height="h-[30rem]"
                                 label="Main Image"
                                 v-model="editForm.mainImage"
-                                :defaultImage="editForm.mainImage?.url"
+                                :defaultImage="mainImagePrev"
                             />
                         </div>
 
@@ -404,7 +435,7 @@ function handleUpdateTshirt() {
                                 height="h-[14.5rem]"
                                 label="Second Image"
                                 v-model="editForm.secondImage"
-                                :defaultImage="editForm.secondImage?.url"
+                                :defaultImage="secondImagePrev"
                             />
                             <UploadImage
                                 id="thirdImage"
@@ -412,7 +443,7 @@ function handleUpdateTshirt() {
                                 height="h-[14.5rem]"
                                 label="Third Image"
                                 v-model="editForm.thirdImage"
-                                :defaultImage="editForm.thirdImage?.url"
+                                :defaultImage="thirdImagePrev"
                             />
                             <UploadImage
                                 id="forthImage"
@@ -420,7 +451,7 @@ function handleUpdateTshirt() {
                                 height="h-[14.5rem]"
                                 label="Forth Image"
                                 v-model="editForm.forthImage"
-                                :defaultImage="editForm.forthImage?.url"
+                                :defaultImage="forthImagePrev"
                             />
                             <UploadImage
                                 id="fifthImage"
@@ -428,21 +459,22 @@ function handleUpdateTshirt() {
                                 height="h-[14.5rem]"
                                 label="Fifth Image"
                                 v-model="editForm.fifthImage"
-                                :defaultImage="editForm.fifthImage?.url"
+                                :defaultImage="fifthImagePrev"
                             />
                         </div>
                     </div>
+
                     <!-- Submit Button -->
                     <button
                         class="rounded-md p-2 w-full text-white text-base font-semibold transition-all duration-100 ease-in-out"
                         :class="
-                            form.processing
+                            editForm.processing
                                 ? 'cursor-not-allowed bg-slate-500'
                                 : ' bg-green-500 hover:bg-green-600'
                         "
-                        :disabled="form.processing"
+                        :disabled="editForm.processing"
                     >
-                        <span v-if="form.processing">Updating...</span>
+                        <span v-if="editForm.processing">Updating...</span>
                         <span v-else>Update the T-shirt</span>
                     </button>
                 </div>
@@ -468,10 +500,16 @@ function handleUpdateTshirt() {
                 :key="tshirt.id"
                 class="flex flex-col gap-2 bg-slate-200 w-full h-full p-3 rounded-md shadow-md"
             >
-                <img
-                    :src="tshirt.mainImage.url"
-                    class="w-full h-full object-cover rounded-md"
-                />
+                <div class="relative">
+                    <img
+                        :src="tshirt.mainImage?.url"
+                        class="w-full h-full object-cover rounded-md"
+                    />
+                    <p class="absolute top-2 right-2 text-sm text-red z-10">
+                        <!-- {{ tshirt.listed ? "Listed" : "Unlisted" }} -->
+                        <ListingStatus :is-listed="!!tshirt.listed" />
+                    </p>
+                </div>
                 <p class="text-lg font-bold text-nowrap">
                     {{ textHelper.limitText(tshirt.title, 30) }}
                 </p>
@@ -482,11 +520,21 @@ function handleUpdateTshirt() {
                 <div class="grid grid-cols-4 gap-2">
                     <template v-for="i in 4" :key="i">
                         <div
-                            class="flex flex-col gap-2 bg-white w-full h-full rounded-md shadow-md"
+                            class="flex flex-col gap-2 bg-white w-full h-24 rounded-md shadow-md"
                         >
-                            <template v-if="tshirt.otherImages[i]">
+                            <template
+                                v-if="
+                                    Object.values(tshirt.otherImages).find(
+                                        (img) => img.order === i + 1
+                                    )
+                                "
+                            >
                                 <img
-                                    :src="tshirt.otherImages[i].url"
+                                    :src="
+                                        Object.values(tshirt.otherImages).find(
+                                            (img) => img.order === i + 1
+                                        ).url
+                                    "
                                     class="w-full h-full object-cover rounded-md"
                                 />
                             </template>
@@ -494,7 +542,22 @@ function handleUpdateTshirt() {
                         </div>
                     </template>
                 </div>
-                <button class="btn" @click="openEditModal(tshirt)">Edit</button>
+                <div class="flex gap-2 w-full">
+                    <button
+                        class="btn w-1/2 flex items-center gap-2 justify-center"
+                        @click="openEditModal(tshirt)"
+                    >
+                        <Pen class="w-4 h-4" />
+                        Edit
+                    </button>
+                    <button
+                        class="btn-danger w-1/2 flex items-center gap-2 justify-center"
+                        @click="confirmDeleteTshirt"
+                    >
+                        <Remove class="w-4 h-4" />
+                        Delete
+                    </button>
+                </div>
             </div>
         </div>
     </div>

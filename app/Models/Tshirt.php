@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tshirt extends Model
 {
-    protected $fillable = ['title', 'description', 'price'];
+    protected $fillable = ['title', 'description', 'price', 'listed'];
 
     public function images()
     {
@@ -18,14 +18,14 @@ class Tshirt extends Model
         return $this->belongsToMany(Order::class);
     }
 
-    public function mainImage()
+    public function getMainImage()
     {
         return $this->images->where('order', 1)->first();
     }
-    public function otherImages()
+    public function getOtherImages()
     {
         return $this->images->filter(function ($image) {
-            return $image->id !== $this->mainImage()?->id;
+            return $image->id !== $this->getMainImage()?->id;
         });
     }
 }

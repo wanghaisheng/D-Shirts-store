@@ -17,6 +17,7 @@ const emit = defineEmits(["update:modelValue"]);
 const imagePreview = ref(null);
 const imageFile = ref(null);
 const errorMessage = ref("");
+const defaultImage = ref(props.defaultImage);
 
 const computedAcceptedTypes = computed(() =>
     props.acceptedFileTypes.split(",")
@@ -59,6 +60,8 @@ function clearImage() {
     imagePreview.value = null;
     imageFile.value = null;
     errorMessage.value = "";
+    defaultImage.value = null;
+    emit("update:modelValue", null);
 }
 </script>
 
@@ -110,9 +113,9 @@ function clearImage() {
             @change="handleFileSelect"
         />
         <button
-            v-if="imagePreview"
+            v-if="imagePreview || defaultImage"
             class="text-red-500 hover:text-red-700 mt-2 absolute top-1 -left-3 p-1"
-            @click="clearImage"
+            @click.prevent="clearImage"
             aria-label="Remove image"
         >
             <Remove class="w-4 h-4 text-red-500" />

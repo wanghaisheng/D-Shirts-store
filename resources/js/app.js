@@ -3,6 +3,8 @@ import './bootstrap';
 import PrimeVue from "primevue/config";
 import Aura from '@primevue/themes/aura';
 import ToastService from "primevue/toastservice";
+import ConfirmationService from 'primevue/confirmationservice';
+
 
 
 import { createInertiaApp } from '@inertiajs/vue3';
@@ -34,6 +36,7 @@ createInertiaApp({
                 },
             })
             .use(ToastService)
+            .use(ConfirmationService)
             .mount(el);
     },
     progress: {
