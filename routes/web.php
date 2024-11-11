@@ -32,6 +32,7 @@ Route::prefix('admin')->middleware('auth')->group(function(){
     Route::get('t-shirts', [TshirtsController::class, 'index'])->name('t-shirts');  
     Route::post('t-shirts', [TshirtsController::class, 'store'])->name('t-shirts.store');
     Route::post('t-shirts/{tshirt}', [TshirtsController::class, 'update'])->name('t-shirts.update');
+    Route::delete('t-shirts/{tshirt}', [TshirtsController::class, 'destroy'])->name('t-shirts.destroy');
 
     // revenue
     Route::get('revenue', [RevenueController::class, 'index'])->name('revenue');

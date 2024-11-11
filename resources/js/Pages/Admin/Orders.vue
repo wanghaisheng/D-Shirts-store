@@ -6,6 +6,7 @@ import { useTextHelpers } from "@/plugins/textHelpers";
 import Status from "@/Components/Status.vue";
 import CopyText from "@/Components/CopyText.vue";
 import EditOrder from "@/Components/EditOrder.vue";
+import EmptyState from "@/Components/EmptyState.vue";
 
 defineOptions({ layout: Admin });
 
@@ -36,267 +37,274 @@ const textHelper = useTextHelpers();
     <div class="pb-12">
         <Head title="Orders" />
 
-        <!-- Table -->
-        <div class="max-w-7xl overflow-x-auto table-container">
-            <table
-                class="min-w-full divide-y divide-gray-200 bg-white shadow-md mt-16 table-auto"
-            >
-                <thead class="">
-                    <tr>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
-                        >
-                            #
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
-                        >
-                            Customer
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
-                        >
-                            N° of T-shirts
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
-                        >
-                            Amount
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
-                        >
-                            <p class="ms-2">Status</p>
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
-                        >
-                            Tracking Number
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-start"
-                        >
-                            Date
-                        </th>
-                        <th
-                            scope="col"
-                            class="w-24 py-3 text-xs font-medium text-gray-500 uppercase text-center"
-                        >
-                            Actions
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    <template v-for="order in orders.data" :key="order.id">
-                        <!-- Main Order Row -->
-                        <tr
-                            @click="toggleRow(order.id)"
-                            class="cursor-pointer"
-                            :class="{
-                                ' bg-gray-100 hover:bg-gray-100':
-                                    expandedRows.has(order.id),
-                                'hover:bg-gray-50 cursor-pointer ':
-                                    !expandedRows.has(order.id),
-                            }"
-                        >
-                            <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
+        <div v-if="orders.data.length > 0">
+            <!-- Table -->
+            <div class="max-w-7xl overflow-x-auto table-container">
+                <table
+                    class="min-w-full divide-y divide-gray-200 bg-white shadow-md mt-16 table-auto"
+                >
+                    <thead class="">
+                        <tr>
+                            <th
+                                scope="col"
+                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
                             >
-                                <div class="flex items-center">
-                                    <span class="mr-2">{{ order.id }}</span>
-                                    <!-- Expand/Collapse Icon -->
-                                    <svg
-                                        :class="{
-                                            'transform rotate-180':
-                                                expandedRows.has(order.id),
-                                        }"
-                                        class="w-4 h-4 transition-all duration-300 ease-in-out"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M19 9l-7 7-7-7"
-                                        />
-                                    </svg>
-                                </div>
-                            </td>
-                            <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
+                                #
+                            </th>
+                            <th
+                                scope="col"
+                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
                             >
-                                <p class="font-bold">
-                                    {{
-                                        textHelper.limitText(
-                                            order.customer.name,
-                                            20
-                                        )
-                                    }}
-                                </p>
-                                <p class="text-sm">
-                                    {{
-                                        textHelper.limitText(
-                                            order.customer.email,
-                                            35
-                                        )
-                                    }}
-                                </p>
-                            </td>
-                            <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center align-middle"
+                                Customer
+                            </th>
+                            <th
+                                scope="col"
+                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
                             >
-                                {{ order.tshirts.length }}
-                            </td>
-                            <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold text-center align-middle"
+                                N° of T-shirts
+                            </th>
+                            <th
+                                scope="col"
+                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
                             >
-                                {{ order.total_price + " $" ?? 0 }}
-                            </td>
-                            <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
+                                Amount
+                            </th>
+                            <th
+                                scope="col"
+                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
                             >
-                                <Status :type="order.status" />
-                            </td>
-                            <td class=" ">
-                                <div class="flex justify-center">
-                                    <CopyText
-                                        v-if="order.tracking_number"
-                                        :text="order.tracking_number"
-                                        message="Text copied!"
-                                        class="bg-slate-200 rounded-md text-slate-500 w-fit px-2"
-                                    />
-                                    <p
-                                        v-else
-                                        class="text-gray-500 text-sm text-center"
-                                    >
-                                        N/A
-                                    </p>
-                                </div>
-                            </td>
-                            <td
-                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
+                                <p class="ms-2">Status</p>
+                            </th>
+                            <th
+                                scope="col"
+                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
                             >
-                                {{ order.created_at }}
-                            </td>
-                            <td class="">
-                                <div class="flex justify-center">
-                                    <EditOrder
-                                        :order-id="order.id"
-                                        :status="order.status"
-                                        :tracking-number="order.tracking_number"
-                                    />
-                                </div>
-                            </td>
+                                Tracking Number
+                            </th>
+                            <th
+                                scope="col"
+                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-start"
+                            >
+                                Date
+                            </th>
+                            <th
+                                scope="col"
+                                class="w-24 py-3 text-xs font-medium text-gray-500 uppercase text-center"
+                            >
+                                Actions
+                            </th>
                         </tr>
-
-                        <!-- Expanded T-shirts Details Row -->
-                        <tr v-if="expandedRows.has(order.id)">
-                            <td colspan="8" class="bg-slate-200 py-2 px-3">
-                                <div class="grid grid-cols-4 gap-3">
-                                    <div
-                                        v-for="tshirt in order.tshirts"
-                                        :key="tshirt.id"
-                                        class="border rounded p-3 bg-white shadow-sm hover:shadow-md"
-                                    >
-                                        <div
-                                            class="flex flex-col items-center justify-center"
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <template v-for="order in orders.data" :key="order.id">
+                            <!-- Main Order Row -->
+                            <tr
+                                @click="toggleRow(order.id)"
+                                class="cursor-pointer"
+                                :class="{
+                                    ' bg-gray-100 hover:bg-gray-100':
+                                        expandedRows.has(order.id),
+                                    'hover:bg-gray-50 cursor-pointer ':
+                                        !expandedRows.has(order.id),
+                                }"
+                            >
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
+                                >
+                                    <div class="flex items-center">
+                                        <span class="mr-2">{{ order.id }}</span>
+                                        <!-- Expand/Collapse Icon -->
+                                        <svg
+                                            :class="{
+                                                'transform rotate-180':
+                                                    expandedRows.has(order.id),
+                                            }"
+                                            class="w-4 h-4 transition-all duration-300 ease-in-out"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
                                         >
-                                            <img
-                                                class="w-1/2 object-cover"
-                                                :src="
-                                                    tshirt.images.find(
-                                                        (img) => img.order === 1
-                                                    ).url
-                                                "
-                                                alt=""
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M19 9l-7 7-7-7"
                                             />
+                                        </svg>
+                                    </div>
+                                </td>
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
+                                >
+                                    <p class="font-bold">
+                                        {{
+                                            textHelper.limitText(
+                                                order.customer.name,
+                                                20
+                                            )
+                                        }}
+                                    </p>
+                                    <p class="text-sm">
+                                        {{
+                                            textHelper.limitText(
+                                                order.customer.email,
+                                                35
+                                            )
+                                        }}
+                                    </p>
+                                </td>
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center align-middle"
+                                >
+                                    {{ order.tshirts.length }}
+                                </td>
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold text-center align-middle"
+                                >
+                                    {{ order.total_price + " $" ?? 0 }}
+                                </td>
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
+                                >
+                                    <Status :type="order.status" />
+                                </td>
+                                <td class=" ">
+                                    <div class="flex justify-center">
+                                        <CopyText
+                                            v-if="order.tracking_number"
+                                            :text="order.tracking_number"
+                                            message="Text copied!"
+                                            class="bg-slate-200 rounded-md text-slate-500 w-fit px-2"
+                                        />
+                                        <p
+                                            v-else
+                                            class="text-gray-500 text-sm text-center"
+                                        >
+                                            N/A
+                                        </p>
+                                    </div>
+                                </td>
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
+                                >
+                                    {{ order.created_at }}
+                                </td>
+                                <td class="">
+                                    <div class="flex justify-center">
+                                        <EditOrder
+                                            :order-id="order.id"
+                                            :status="order.status"
+                                            :tracking-number="order.tracking_number"
+                                        />
+                                    </div>
+                                </td>
+                            </tr>
+    
+                            <!-- Expanded T-shirts Details Row -->
+                            <tr v-if="expandedRows.has(order.id)">
+                                <td colspan="8" class="bg-slate-200 py-2 px-3">
+                                    <div class="grid grid-cols-4 gap-3">
+                                        <div
+                                            v-for="tshirt in order.tshirts"
+                                            :key="tshirt.id"
+                                            class="border rounded p-3 bg-white shadow-sm hover:shadow-md"
+                                        >
                                             <div
-                                                class="w-full text-center flex flex-col justify-center items-center"
+                                                class="flex flex-col items-center justify-center"
                                             >
-                                                <p class="font-bold">
-                                                    {{
-                                                        textHelper.limitText(
-                                                            tshirt.title,
-                                                            10
-                                                        )
-                                                    }}
-                                                </p>
-                                                <p
-                                                    class="text-green-100 font-semibold bg-green-700 p-1 rounded-sm w-fit"
+                                                <img
+                                                    class="w-1/2 object-cover"
+                                                    :src="
+                                                        tshirt.images.find(
+                                                            (img) => img.order === 1
+                                                        ).url
+                                                    "
+                                                    alt=""
+                                                />
+                                                <div
+                                                    class="w-full text-center flex flex-col justify-center items-center"
                                                 >
-                                                    {{ tshirt.price }}$
-                                                </p>
+                                                    <p class="font-bold">
+                                                        {{
+                                                            textHelper.limitText(
+                                                                tshirt.title,
+                                                                30
+                                                            )
+                                                        }}
+                                                    </p>
+                                                    <p
+                                                        class="text-green-100 font-semibold bg-green-700 p-1 rounded-sm w-fit"
+                                                    >
+                                                        {{ tshirt.price }}$
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+    
+            <!-- table footer -->
+            <div class="my-4 flex md:flex-row flex-col md:gap-0 gap-2 justify-between items-center w-full">
+                <!-- results -->
+                <div class="md:order-1 order-2">
+                    <p class="text-base text-slate-800">
+                        Showing
+                        <span class="text-green-600 font-bold text-lg">{{
+                            orders.from
+                        }}</span>
+                        to
+                        <span class="text-green-600 font-bold text-lg"
+                            >{{ orders.to }}
+                        </span>
+                        of {{ orders.total }} orders
+                    </p>
+                </div>
+                <nav class="">
+                    <div class="flex items-center -space-x-px h-8 text-sm">
+                        <template
+                            v-for="(link, index) in orders.links"
+                            :key="link.url"
+                        >
+                            <Link
+                                :preserve-scroll="true"
+                                v-if="link.url"
+                                :href="link.url"
+                                v-html="link.label"
+                                class="flex items-center justify-center px-3 h-8 leading-tight border border-gray-300 transition-colors"
+                                :class="{
+                                    'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700':
+                                        !link.active,
+                                    'bg-green-500 text-white hover:bg-green-600':
+                                        link.active,
+                                    'rounded-l-lg': index === 0,
+                                    'rounded-r-lg':
+                                        index === orders.links.length - 1,
+                                }"
+                            />
+                            <p
+                                v-else
+                                v-html="link.label"
+                                class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-slate-200 border border-gray-300"
+                                :class="{
+                                    'rounded-l-lg': index === 0,
+                                    'rounded-r-lg':
+                                        index === orders.links.length - 1,
+                                }"
+                            />
+                        </template>
+                    </div>
+                </nav>
+            </div>
         </div>
 
-        <!-- table footer -->
-        <div class="my-4 flex md:flex-row flex-col md:gap-0 gap-2 justify-between items-center w-full">
-            <!-- results -->
-            <div class="md:order-1 order-2">
-                <p class="text-base text-slate-800">
-                    Showing
-                    <span class="text-green-600 font-bold text-lg">{{
-                        orders.from
-                    }}</span>
-                    to
-                    <span class="text-green-600 font-bold text-lg"
-                        >{{ orders.to }}
-                    </span>
-                    of {{ orders.total }} orders
-                </p>
-            </div>
-            <nav class="">
-                <div class="flex items-center -space-x-px h-8 text-sm">
-                    <template
-                        v-for="(link, index) in orders.links"
-                        :key="link.url"
-                    >
-                        <Link
-                            :preserve-scroll="true"
-                            v-if="link.url"
-                            :href="link.url"
-                            v-html="link.label"
-                            class="flex items-center justify-center px-3 h-8 leading-tight border border-gray-300 transition-colors"
-                            :class="{
-                                'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700':
-                                    !link.active,
-                                'bg-green-500 text-white hover:bg-green-600':
-                                    link.active,
-                                'rounded-l-lg': index === 0,
-                                'rounded-r-lg':
-                                    index === orders.links.length - 1,
-                            }"
-                        />
-                        <p
-                            v-else
-                            v-html="link.label"
-                            class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-slate-200 border border-gray-300"
-                            :class="{
-                                'rounded-l-lg': index === 0,
-                                'rounded-r-lg':
-                                    index === orders.links.length - 1,
-                            }"
-                        />
-                    </template>
-                </div>
-            </nav>
+        <!-- Empty State -->
+        <div v-else>
+            <EmptyState title="No Orders Yet !" />
         </div>
     </div>
 </template>

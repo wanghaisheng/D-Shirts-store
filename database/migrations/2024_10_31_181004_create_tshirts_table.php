@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->float('price');
             $table->boolean('listed')->default(true);
+            $table->string('images_folder_name')->nullable();
             $table->timestamps();
         });
     }

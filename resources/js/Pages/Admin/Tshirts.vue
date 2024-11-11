@@ -1,6 +1,6 @@
 <script setup>
 import Admin from "@/Layouts/Admin.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head, router, Link } from "@inertiajs/vue3";
 import Dialog from "primevue/dialog";
 import { ref } from "vue";
 import UploadImage from "@/Components/UploadImage.vue";
@@ -15,15 +15,17 @@ import ToggleSwitch from "primevue/toggleswitch";
 import { useTextHelpers } from "@/plugins/textHelpers";
 import Pen from "@/Icons/Pen.vue";
 import Remove from "@/Icons/Remove.vue";
+import Target from "@/Icons/Target.vue";
 import ListingStatus from "@/Components/ListingStatus.vue";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
+import EmptyState from "@/Components/EmptyState.vue";
 
 defineOptions({ layout: Admin });
 
 const props = defineProps({
     tshirts: {
-        type: Array,
+        type: Object,
     },
 });
 
@@ -111,7 +113,6 @@ const forthImagePrev = ref(null);
 const fifthImagePrev = ref(null);
 
 function openEditModal(tshirt) {
-    console.log(tshirt.listed);
     showEditTshirtModal.value = true;
 
     editForm.id = tshirt.id;
@@ -186,33 +187,27 @@ function handleUpdateTshirt() {
 }
 
 const confirmDelete = useConfirm();
-const confirmDeleteTshirt = () => {
+
+const confirmDeleteTshirt = (tshirtId) => {
     confirmDelete.require({
-        group: 'templating',
+        group: "templating",
         message: "Are you sure you want to proceed?",
-        header: "Danger Zone",
-        // icon: 'pi pi-exclamation-triangle',
+        header: "Delete this T-Shirt ?",
         rejectProps: {
             label: "Cancel",
             severity: "secondary",
             outlined: true,
         },
         acceptProps: {
-            label: "Save",
+            label: "Delete",
+            severity: "danger",
         },
         accept: () => {
+            router.delete(route("t-shirts.destroy", tshirtId));
             toast.add({
-                severity: "info",
-                summary: "Confirmed",
-                detail: "You have accepted",
-                life: 3000,
-            });
-        },
-        reject: () => {
-            toast.add({
-                severity: "error",
-                summary: "Rejected",
-                detail: "You have rejected",
+                severity: "success",
+                summary: "Success",
+                detail: "T-Shirt deleted successfully",
                 life: 3000,
             });
         },
@@ -221,15 +216,36 @@ const confirmDeleteTshirt = () => {
 </script>
 
 <template>
-    <div class="">
+    <div v-if="tshirts.data.length > 0">
         <Head title="T-Shirts" />
         <Toast />
-        <ConfirmDialog group="templating">
+        <ConfirmDialog group="templating" class="w-full md:w-1/2 lg:w-1/3">
             <template #message="slotProps">
-                <div
-                    class="flex flex-col items-center w-full gap-4 border-b border-surface-200 dark:border-surface-700"
-                >
-                    <p class="bg-red-500">write here</p>
+                <div class="flex flex-col items-center">
+                    <div class="bg-rose-500 rounded-full p-3 mb-4">
+                        <svg
+                            class="h-8 w-8 text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        Are you sure?
+                    </h2>
+                    <p class="text-gray-600 mb-6">
+                        Deleting this T-Shirt will also remove all related
+                        images and orders. If you just want to hide it from the
+                        public, you can uncheck the "Listed" checkbox on the
+                        edit page.
+                    </p>
                 </div>
             </template>
         </ConfirmDialog>
@@ -493,30 +509,44 @@ const confirmDeleteTshirt = () => {
 
         <!-- T-shirts List -->
         <div
-            class="w-full overflow-x-auto grid lg:grid-cols-3 md:grid-cols-2 grid-flow-cols-1 gap-6 pb-8 pt-6"
+            class="w-full overflow-x-auto grid lg:grid-cols-3 md:grid-cols-2 grid-flow-cols-1 gap-12 pb-8 pt-6"
         >
             <div
-                v-for="tshirt in tshirts"
+                v-for="tshirt in tshirts.data"
                 :key="tshirt.id"
-                class="flex flex-col gap-2 bg-slate-200 w-full h-full p-3 rounded-md shadow-md"
+                class="flex flex-col gap-2 bg-slate-200 w-full h-full p-3 rounded-md shadow-md border-2 border-gray-300"
             >
                 <div class="relative">
                     <img
                         :src="tshirt.mainImage?.url"
                         class="w-full h-full object-cover rounded-md"
                     />
-                    <p class="absolute top-2 right-2 text-sm text-red z-10">
-                        <!-- {{ tshirt.listed ? "Listed" : "Unlisted" }} -->
+                    <p class="absolute top-2 left-2 text-sm text-red z-10">
                         <ListingStatus :is-listed="!!tshirt.listed" />
                     </p>
+                    <a
+                        href="#"
+                        class="absolute top-2 right-2 text-sm text-red z-10 flex items-center gap-1"
+                    >
+                        <Target
+                            class="w-5 h-5 text-slate-600 hover:h-6 hover:w-6 hover:text-blue-500 smooth"
+                        />
+                    </a>
                 </div>
-                <p class="text-lg font-bold text-nowrap">
-                    {{ textHelper.limitText(tshirt.title, 30) }}
-                </p>
-                <p class="text-lg font-bold">{{}}</p>
-                <p class="text-sm font-bold text-green-600">
-                    ${{ tshirt.price }}
-                </p>
+                <div class="flex justify-between my-3 px-1 items-center gap-1">
+                    <p class="text-lg font-bold text-nowrap">
+                        {{ textHelper.limitText(tshirt.title, 30) }}
+                    </p>
+                    <p
+                        class="px-2 py-1 text-white text-base bg-green-800 rounded-md w-fit font-bold"
+                    >
+                        ${{ tshirt.price }}
+                    </p>
+                </div>
+                <div>
+                    <p>Total Sells: {{ tshirt.totalSells }}</p>
+                    <p>Total Revenue: ${{ tshirt.totalRevenue }}</p>
+                </div>
                 <div class="grid grid-cols-4 gap-2">
                     <template v-for="i in 4" :key="i">
                         <div
@@ -544,15 +574,15 @@ const confirmDeleteTshirt = () => {
                 </div>
                 <div class="flex gap-2 w-full">
                     <button
-                        class="btn w-1/2 flex items-center gap-2 justify-center"
+                        class="rounded-md p-2 text-white text-sm font-semibold bg-slate-500 hover:bg-green-600 transition-all duration-100 ease-in-out w-1/2 flex items-center gap-2 justify-center"
                         @click="openEditModal(tshirt)"
                     >
                         <Pen class="w-4 h-4" />
                         Edit
                     </button>
                     <button
-                        class="btn-danger w-1/2 flex items-center gap-2 justify-center"
-                        @click="confirmDeleteTshirt"
+                        class="rounded-md p-2 text-white text-sm font-semibold bg-slate-800 hover:bg-red-600 transition-all duration-100 ease-in-out w-1/2 flex items-center gap-2 justify-center"
+                        @click="confirmDeleteTshirt(tshirt.id)"
                     >
                         <Remove class="w-4 h-4" />
                         Delete
@@ -560,5 +590,64 @@ const confirmDeleteTshirt = () => {
                 </div>
             </div>
         </div>
+
+        <!-- Pagination -->
+        <div
+            class="mt-4 mb-12 flex md:flex-row flex-col md:gap-0 gap-2 justify-between items-center w-full"
+        >
+            <!-- results -->
+            <div class="md:order-1 order-2">
+                <p class="text-base text-slate-800">
+                    Showing
+                    <span class="text-green-600 font-bold text-lg">{{
+                        tshirts.from
+                    }}</span>
+                    to
+                    <span class="text-green-600 font-bold text-lg"
+                        >{{ tshirts.to }}
+                    </span>
+                    of {{ tshirts.total }} tshirts
+                </p>
+            </div>
+            <nav class="">
+                <div class="flex items-center -space-x-px h-8 text-sm">
+                    <template
+                        v-for="(link, index) in tshirts.links"
+                        :key="link.url"
+                    >
+                        <Link
+                            :preserve-scroll="true"
+                            v-if="link.url"
+                            :href="link.url"
+                            v-html="link.label"
+                            class="flex items-center justify-center px-3 h-8 leading-tight border border-gray-300 transition-colors"
+                            :class="{
+                                'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700':
+                                    !link.active,
+                                'bg-green-500 text-white hover:bg-green-600':
+                                    link.active,
+                                'rounded-l-lg': index === 0,
+                                'rounded-r-lg':
+                                    index === tshirts.links.length - 1,
+                            }"
+                        />
+                        <p
+                            v-else
+                            v-html="link.label"
+                            class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-slate-200 border border-gray-300"
+                            :class="{
+                                'rounded-l-lg': index === 0,
+                                'rounded-r-lg':
+                                    index === tshirts.links.length - 1,
+                            }"
+                        />
+                    </template>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!-- Empty State -->
+    <div v-else>
+       <EmptyState title="No T-Shirts Yet !" />
     </div>
 </template>

@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use App\Helpers\TitleToFolderName;
 use Illuminate\Database\Eloquent\Model;
 
 class Tshirt extends Model
 {
-    protected $fillable = ['title', 'description', 'price', 'listed'];
+    protected $fillable = ['title', 'description', 'price', 'listed', 'images_folder_name'];
 
     public function images()
     {
@@ -26,6 +27,29 @@ class Tshirt extends Model
     {
         return $this->images->filter(function ($image) {
             return $image->id !== $this->getMainImage()?->id;
+        });
+    }
+
+    public function getImagesFolderName()
+    {
+        return $this->images_folder_name ?? TitleToFolderName::convert($this->title) ;
+    }
+
+    public function getTotalSells()
+    {
+        // Load orders if not already loaded
+        $this->loadMissing('orders');
+
+        return $this->orders->sum('pivot.quantity');
+    }
+
+    public function getTotalRevenue()
+    {
+        // Load orders if not already loaded
+        $this->loadMissing('orders');
+
+        return $this->orders->sum(function ($order) {
+            return $order->pivot->quantity * $order->pivot->price;
         });
     }
 }

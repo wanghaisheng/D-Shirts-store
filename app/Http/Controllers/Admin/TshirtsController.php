@@ -13,19 +13,27 @@ class TshirtsController extends Controller
 {
     public function index()
     {
-        $tshirts = Tshirt::with('images')->orderBy('created_at', 'desc')->get()->map(function ($tshirt) {
-            return [
-                'id' => $tshirt->id,
-                'title' => $tshirt->title,
-                'description' => $tshirt->description,
-                'price' => $tshirt->price,
-                'listed' => $tshirt->listed,
-                'mainImage' => $tshirt->getMainImage(),
-                'otherImages' => $tshirt->getOtherImages()
-            ];
-        });
+        $tshirts = Tshirt::with('images')
+        ->orderBy('created_at', 'desc')
+        ->paginate(9) 
+            ->through(function ($tshirt) {
+                return [
+                    'id' => $tshirt->id,
+                    'title' => $tshirt->title,
+                    'description' => $tshirt->description,
+                    'price' => $tshirt->price,
+                    'listed' => $tshirt->listed,
+                    'mainImage' => $tshirt->getMainImage(),
+                    'otherImages' => $tshirt->getOtherImages(),
+                    'imagesFolderName' => $tshirt->getImagesFolderName(),
+                    'totalSells' => $tshirt->getTotalSells(),
+                    'totalRevenue' => $tshirt->getTotalRevenue()
+                ];
+            });
+
         return inertia('Admin/Tshirts', ['tshirts' => $tshirts]);
     }
+
 
     public function store(Request $request)
     {
@@ -41,15 +49,18 @@ class TshirtsController extends Controller
             'fifthImage' => 'nullable|image|max:1024',
         ]);
 
+        // Generate folder name from the first 3 words of the title
+        $folderName = TitleToFolderName::convert($validatedData['title']);
+
         // Create a new Tshirt instance and save it
         $tshirt = new Tshirt();
         $tshirt->title = $validatedData['title'];
         $tshirt->price = $validatedData['price'];
         $tshirt->description = $validatedData['description'];
+        $tshirt->images_folder_name = $folderName;
         $tshirt->save();
 
-        // Generate folder name from the first 3 words of the title
-        $folderName = TitleToFolderName::convert($validatedData['title']);
+        
 
         // Array of images with their corresponding order
         $images = [
@@ -87,7 +98,6 @@ class TshirtsController extends Controller
 
     public function update(Request $request, Tshirt $tshirt)
     {
-        // dd($request->all());
         // Validate request data
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
@@ -101,8 +111,8 @@ class TshirtsController extends Controller
             'fifthImage' => 'nullable|max:1024',
         ]);
 
-        // Folder name based on the original title
-        $folderName = TitleToFolderName::convert($tshirt->title);
+        // Tshirt folder name
+        $folderName = $tshirt->getImagesFolderName();
 
         // Only update text fields if they have changed
         $changes = [];
@@ -168,6 +178,21 @@ class TshirtsController extends Controller
 
 
         // Redirect to the t-shirts route
+        return redirect()->back();
+    }
+
+    public function destroy(Tshirt $tshirt)
+    {
+        // Delete the images
+        $tshirt->images()->delete();
+
+        // delete the images folder
+        $folderPath = "tshirts/{$tshirt->getImagesFolderName()}";
+        Storage::disk('public')->deleteDirectory($folderPath);
+
+        // delete the tshirt
+        $tshirt->delete();
+
         return redirect()->route('t-shirts');
     }
 }

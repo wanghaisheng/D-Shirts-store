@@ -65,6 +65,7 @@ class TshirtSeeder extends Seeder
                 'title' => $tshirtData['title'],
                 'description' => $tshirtData['description'],
                 'price' => 29.00,
+                'images_folder_name' => TitleToFolderName::convert($tshirtData['title']),
             ]);
 
             // Folder name based on the slugified title
