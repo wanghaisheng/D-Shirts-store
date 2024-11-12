@@ -29,13 +29,10 @@ class OrderSeeder extends Seeder
             $selectedTshirts = $tshirts->random($numberOfItems);
 
             // Calculate the total price as the sum of selected T-shirt prices
-            $totalPrice = $selectedTshirts->sum('price');
 
             // Create the order with a generated tracking number and random status
             $order = Order::create([
                 'customer_id' => $customer->id,
-                'number_of_items' => $numberOfItems,
-                'total_price' => $totalPrice,
                 'status' => $this->getRandomStatus(),
                 'tracking_number' => rand(10000000, 99999999), // 8-digit tracking number
                 'created_at' => now()->subDays(rand(1, 30)), // Random date within the past month

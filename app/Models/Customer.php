@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Customer extends Model
 {
@@ -14,5 +15,21 @@ class Customer extends Model
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function totalSpent()
+    {
+        return $this->orders()
+            ->join('order_tshirt', 'orders.id', '=', 'order_tshirt.order_id')
+            ->where('orders.customer_id', $this->id)
+            ->sum(DB::raw('order_tshirt.quantity * order_tshirt.price'));
+    }
+
+    public function totalTshirtsBought()
+    {
+        return $this->orders()
+            ->join('order_tshirt', 'orders.id', '=', 'order_tshirt.order_id')
+            ->where('orders.customer_id', $this->id)
+            ->sum('order_tshirt.quantity');
     }
 }

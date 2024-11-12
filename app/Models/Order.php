@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    protected $fillable = ['customer_id', 'number_of_items', 'total_price', 'status', 'tracking_number'];
+    protected $fillable = ['customer_id', 'number_of_items', 'status', 'tracking_number'];
 
     public function customer()
     {
@@ -15,6 +15,22 @@ class Order extends Model
 
     public function tshirts()
     {
-        return $this->belongsToMany(Tshirt::class);
+        return $this->belongsToMany(Tshirt::class)
+            ->withPivot('quantity', 'price')
+            ->withTimestamps();
+    }
+
+    public function getTotalTshirts()
+    {
+        $this->loadMissing('tshirts');
+        return $this->tshirts->sum('pivot.quantity');
+    }
+
+    public function getTotalAmount()
+    {
+        $this->loadMissing('tshirts');
+        return $this->tshirts->sum(function ($tshirt) {
+            return $tshirt->pivot->quantity * $tshirt->pivot->price;
+        });
     }
 }

@@ -8,20 +8,22 @@ use Illuminate\Http\Request;
 
 class OrdersController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $orders = Order::select('id', 'customer_id', 'total_price', 'status', 'tracking_number', 'created_at')
+        $orders = Order::select('id', 'customer_id', 'status', 'tracking_number', 'created_at')
             ->with('customer')
             ->with([
                 'tshirts.images' => function ($query) {
                     $query->where('order', 1);
-                }
+                },
             ])
             ->paginate(10)
             ->through(function ($order) {
                 return [
                     ...$order->toArray(),
                     'created_at' => $order->created_at->format('M d, Y H:i'),
+                    'total_tshirts' => $order->getTotalTshirts(),
+                    'total_amount' => $order->getTotalAmount(),
                 ];
             });
         return inertia('Admin/Orders', ['orders' => $orders]);

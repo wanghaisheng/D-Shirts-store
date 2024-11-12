@@ -18,9 +18,13 @@ class CustomersController extends Controller
                 ->orWhere('address', 'like', '%' . $request->search . '%');
         })
         ->select('id', 'name', 'email', 'phone', 'country', 'city', 'address')
-        ->withCount('orders')  // Adds an 'orders_count' attribute for the total order count
-        ->withSum('orders', 'total_price')  // Adds an 'orders_sum_total_price' attribute for total revenue
-        ->paginate(10)->withQueryString();
+        ->paginate(10)
+        ->withQueryString()
+        ->through(function ($customer) {
+            $customer->total_spent = $customer->totalSpent();
+            $customer->total_tshirts_bought = $customer->totalTshirtsBought();
+            return $customer;
+        });
         $searchTerm = request()->get('search');
         return inertia('Admin/Customers', compact('customers', 'searchTerm'));
     }

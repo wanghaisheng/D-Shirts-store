@@ -1,12 +1,14 @@
 <script setup>
 import Admin from "@/Layouts/Admin.vue";
 import { Head, Link } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
 import { useTextHelpers } from "@/plugins/textHelpers";
 import Status from "@/Components/Status.vue";
 import CopyText from "@/Components/CopyText.vue";
 import EditOrder from "@/Components/EditOrder.vue";
 import EmptyState from "@/Components/EmptyState.vue";
+import Popover from "primevue/popover";
+import Copy from "@/Icons/Copy.vue";
 
 defineOptions({ layout: Admin });
 
@@ -30,6 +32,34 @@ const toggleRow = (orderId) => {
 };
 
 const textHelper = useTextHelpers();
+
+const op = ref();
+const selectedOrder = ref(null);
+const toggleAddressPopOver = (event, customer) => {
+    op.value.hide();
+
+    // Create an object with the order details
+    const orderDetails = {
+        id: customer.id,
+        country: customer.country,
+        city: customer.city,
+        address: customer.address,
+    };
+
+    if (selectedOrder.value?.id === customer.id) {
+        selectedOrder.value = null;
+    } else {
+        selectedOrder.value = orderDetails;
+        nextTick(() => {
+            op.value.show(event);
+        });
+    }
+};
+const copyAddress = () => {
+    op.value.hide();
+    const fullAddress = `${selectedOrder.value.country}, ${selectedOrder.value.city}, ${selectedOrder.value.address}`;
+    navigator.clipboard.writeText(fullAddress);
+};
 </script>
 
 <template>
@@ -37,11 +67,39 @@ const textHelper = useTextHelpers();
     <div class="pb-12">
         <Head title="Orders" />
 
-        <div v-if="orders.data.length > 0">
+        <!-- Address Popover -->
+        <Popover ref="op">
+            <div v-if="selectedOrder">
+                <div class="flex items-center justify-start gap-1 relative">
+                    <Copy
+                        @click="copyAddress"
+                        class="w-5 h-5 absolute top-0 right-0 text-slate-600 cursor-pointer hover:h-[1.3rem] hover:w-[1.3rem] smooth"
+                    />
+                    <p class="font-bold">
+                        {{ selectedOrder.country }}
+                    </p>
+                    <p>,</p>
+                    <p class="font-bold">{{ selectedOrder.city }}</p>
+                </div>
+                <p class="text-sm">
+                    {{ textHelper.limitText(selectedOrder.address, 50) }}
+                </p>
+            </div>
+        </Popover>
+
+        <div v-if="orders.data.length > 0" class="mt-7">
+            <!-- Filters -->
+            <div class="flex gap-2 my-3">
+                <button>All</button>
+                <button>Pending</button>
+                <button>Processing</button>
+                <button>Delivered</button>
+                <button>Cancelled</button>
+            </div>
             <!-- Table -->
             <div class="max-w-7xl overflow-x-auto table-container">
                 <table
-                    class="min-w-full divide-y divide-gray-200 bg-white shadow-md mt-16 table-auto"
+                    class="min-w-full divide-y divide-gray-200 bg-white shadow-md table-auto"
                 >
                     <thead class="">
                         <tr>
@@ -59,9 +117,15 @@ const textHelper = useTextHelpers();
                             </th>
                             <th
                                 scope="col"
+                                class="px-2 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
+                            >
+                                Shipping Address
+                            </th>
+                            <th
+                                scope="col"
                                 class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
                             >
-                                N° of T-shirts
+                                Items
                             </th>
                             <th
                                 scope="col"
@@ -153,15 +217,30 @@ const textHelper = useTextHelpers();
                                         }}
                                     </p>
                                 </td>
+                                <!-- // -->
+                                <td>
+                                    <div
+                                        @click.stop="
+                                            toggleAddressPopOver(
+                                                $event,
+                                                order.customer
+                                            )
+                                        "
+                                        class="bg-slate-200 p-1 rounded-md text-slate-600 hover:bg-slate-300 smooth"
+                                    >
+                                        {{ order.customer.country }}
+                                    </div>
+                                </td>
+                                <!-- // -->
                                 <td
                                     class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center align-middle"
                                 >
-                                    {{ order.tshirts.length }}
+                                    {{ order.total_tshirts }}
                                 </td>
                                 <td
                                     class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold text-center align-middle"
                                 >
-                                    {{ order.total_price + " $" ?? 0 }}
+                                    {{ order.total_amount + " $" ?? 0 }}
                                 </td>
                                 <td
                                     class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
@@ -174,7 +253,7 @@ const textHelper = useTextHelpers();
                                             v-if="order.tracking_number"
                                             :text="order.tracking_number"
                                             message="Text copied!"
-                                            class="bg-slate-200 rounded-md text-slate-500 w-fit px-2"
+                                            class="bg-slate-200 rounded-md text-slate-500 w-fit px-2 hover:bg-slate-300 smooth"
                                         />
                                         <p
                                             v-else
@@ -194,15 +273,17 @@ const textHelper = useTextHelpers();
                                         <EditOrder
                                             :order-id="order.id"
                                             :status="order.status"
-                                            :tracking-number="order.tracking_number"
+                                            :tracking-number="
+                                                order.tracking_number
+                                            "
                                         />
                                     </div>
                                 </td>
                             </tr>
-    
+
                             <!-- Expanded T-shirts Details Row -->
                             <tr v-if="expandedRows.has(order.id)">
-                                <td colspan="8" class="bg-slate-200 py-2 px-3">
+                                <td colspan="9" class="bg-slate-200 py-2 px-3">
                                     <div class="grid grid-cols-4 gap-3">
                                         <div
                                             v-for="tshirt in order.tshirts"
@@ -216,7 +297,8 @@ const textHelper = useTextHelpers();
                                                     class="w-1/2 object-cover"
                                                     :src="
                                                         tshirt.images.find(
-                                                            (img) => img.order === 1
+                                                            (img) =>
+                                                                img.order === 1
                                                         ).url
                                                     "
                                                     alt=""
@@ -232,11 +314,36 @@ const textHelper = useTextHelpers();
                                                             )
                                                         }}
                                                     </p>
-                                                    <p
-                                                        class="text-green-100 font-semibold bg-green-700 p-1 rounded-sm w-fit"
+                                                    <div
+                                                        class="flex justify-between items-center gap-4 mt-1 w-full"
                                                     >
-                                                        {{ tshirt.price }}$
-                                                    </p>
+                                                        <div
+                                                            class="bg-teal-600 w-1/2 p-1 border border-white rounded-md text-start text-white flex items-center gap-1"
+                                                        >
+                                                            <p>Price:</p>
+                                                            <p
+                                                                class="font-bold w-full text-center"
+                                                            >
+                                                                {{
+                                                                    "$" +
+                                                                    tshirt.price
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                        <div
+                                                            class="bg-teal-600 w-1/2 p-1 border border-white rounded-md text-start text-white flex items-center gap-1"
+                                                        >
+                                                            <p>Quantity:</p>
+                                                            <p
+                                                                class="font-bold w-full text-center"
+                                                            >
+                                                                {{
+                                                                    tshirt.pivot
+                                                                        .quantity
+                                                                }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -247,9 +354,11 @@ const textHelper = useTextHelpers();
                     </tbody>
                 </table>
             </div>
-    
+
             <!-- table footer -->
-            <div class="my-4 flex md:flex-row flex-col md:gap-0 gap-2 justify-between items-center w-full">
+            <div
+                class="my-4 flex md:flex-row flex-col md:gap-0 gap-2 justify-between items-center w-full"
+            >
                 <!-- results -->
                 <div class="md:order-1 order-2">
                     <p class="text-base text-slate-800">

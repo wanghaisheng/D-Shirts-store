@@ -26,7 +26,7 @@ class TshirtsController extends Controller
                     'mainImage' => $tshirt->getMainImage(),
                     'otherImages' => $tshirt->getOtherImages(),
                     'imagesFolderName' => $tshirt->getImagesFolderName(),
-                    'totalSells' => $tshirt->getTotalSells(),
+                    'totalSells' => $tshirt->getTotalSales(),
                     'totalRevenue' => $tshirt->getTotalRevenue()
                 ];
             });

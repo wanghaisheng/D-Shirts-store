@@ -16,7 +16,9 @@ class Tshirt extends Model
 
     public function orders()
     {
-        return $this->belongsToMany(Order::class);
+        return $this->belongsToMany(Order::class)
+            ->withPivot('quantity', 'price')
+            ->withTimestamps();
     }
 
     public function getMainImage()
@@ -35,19 +37,15 @@ class Tshirt extends Model
         return $this->images_folder_name ?? TitleToFolderName::convert($this->title) ;
     }
 
-    public function getTotalSells()
+    public function getTotalSales()
     {
-        // Load orders if not already loaded
         $this->loadMissing('orders');
-
         return $this->orders->sum('pivot.quantity');
     }
 
     public function getTotalRevenue()
     {
-        // Load orders if not already loaded
         $this->loadMissing('orders');
-
         return $this->orders->sum(function ($order) {
             return $order->pivot->quantity * $order->pivot->price;
         });

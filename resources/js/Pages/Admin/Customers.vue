@@ -99,7 +99,7 @@ const textHelpers = useTextHelpers();
                                 scope="col"
                                 class="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-start"
                             >
-                                Revenue
+                                Spent
                             </th>
                         </tr>
                     </thead>
@@ -126,24 +126,22 @@ const textHelpers = useTextHelpers();
                             <td
                                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 w-12 overflow-hidden"
                             >
-                                <p class="">
                                     <div class="flex items-center justify-start gap-1 ">
                                         <p class="font-bold" v-html=" textHelpers.highlightText(customer.country, debouncedSearch)" />
                                         <p>,</p>
                                         <p class="font-bold" v-html=" textHelpers.highlightText(customer.city, debouncedSearch)" />
                                     </div>
                                     <p class="text-sm" v-html=" textHelpers.highlightText(textHelpers.limitText(customer.address, 50), debouncedSearch)" />
-                                </p>
                             </td>
                             <td
                                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center "
                             >
-                                {{ customer.orders_count }}
+                                {{ customer.total_tshirts_bought }}
                             </td>
                             <td
                                 class="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-center font-bold"
                             >
-                                {{ customer.orders_sum_total_price ?? 0 }} $
+                                {{ customer.total_spent ?? 0 }} $
                             </td>
                         </tr>
                     </tbody>

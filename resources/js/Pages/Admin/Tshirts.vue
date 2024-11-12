@@ -537,15 +537,39 @@ const confirmDeleteTshirt = (tshirtId) => {
                     <p class="text-lg font-bold text-nowrap">
                         {{ textHelper.limitText(tshirt.title, 30) }}
                     </p>
-                    <p
-                        class="px-2 py-1 text-white text-base bg-green-800 rounded-md w-fit font-bold"
-                    >
-                        ${{ tshirt.price }}
-                    </p>
                 </div>
-                <div>
-                    <p>Total Sells: {{ tshirt.totalSells }}</p>
-                    <p>Total Revenue: ${{ tshirt.totalRevenue }}</p>
+                <div class="flex justify-between items-center gap-4 mb-3">
+                    <div
+                        class="bg-teal-600 w-1/4 p-2 border border-white rounded-md text-start text-white flex items-center gap-1"
+                    >
+                        <p>Price:</p>
+                        <p
+                            class="font-bold w-full text-center"
+                        >
+                            {{'$' +tshirt.price }}
+                        </p>
+                    </div>
+                    <div
+                        class="bg-teal-600 w-1/4 p-2 border border-white rounded-md text-start text-white flex items-center gap-1"
+                    >
+                        <p>Sells:</p>
+                        <p
+                            class="font-bold w-full text-center"
+                        >
+                            {{ tshirt.totalSells }}
+                        </p>
+                    </div>
+                    <div
+                        class="bg-teal-800 w-1/2 p-2 border border-white rounded-md text-start text-white flex items-center gap-1"
+                    >
+                        <p>Revenue:</p>
+                        <p
+                            class="font-bold text-xl w-full text-center"
+                        >
+                             {{ '$' + tshirt.totalRevenue }}
+                        </p>
+                    </div>
+                    
                 </div>
                 <div class="grid grid-cols-4 gap-2">
                     <template v-for="i in 4" :key="i">
@@ -648,6 +672,6 @@ const confirmDeleteTshirt = (tshirtId) => {
     </div>
     <!-- Empty State -->
     <div v-else>
-       <EmptyState title="No T-Shirts Yet !" />
+        <EmptyState title="No T-Shirts Yet !" />
     </div>
 </template>
