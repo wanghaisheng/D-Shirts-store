@@ -1,7 +1,7 @@
 <script setup>
 import Admin from "@/Layouts/Admin.vue";
-import { Head, Link } from "@inertiajs/vue3";
-import { ref, nextTick } from "vue";
+import { Head, Link, router } from "@inertiajs/vue3";
+import { ref, nextTick, watch } from "vue";
 import { useTextHelpers } from "@/plugins/textHelpers";
 import Status from "@/Components/Status.vue";
 import CopyText from "@/Components/CopyText.vue";
@@ -17,6 +17,7 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    currentFilter: String,
 });
 
 // Keep track of expanded rows
@@ -60,6 +61,14 @@ const copyAddress = () => {
     const fullAddress = `${selectedOrder.value.country}, ${selectedOrder.value.city}, ${selectedOrder.value.address}`;
     navigator.clipboard.writeText(fullAddress);
 };
+
+const selectedFilter = ref(props.currentFilter);
+
+watch(selectedFilter, (newFilter) => {
+    router.get(route("orders"), {
+        filter: newFilter,
+    });
+});
 </script>
 
 <template>
@@ -87,333 +96,430 @@ const copyAddress = () => {
             </div>
         </Popover>
 
-        <div v-if="orders.data.length > 0" class="mt-7">
-            <!-- Filters -->
-            <div class="flex gap-2 my-3">
-                <button>All</button>
-                <button>Pending</button>
-                <button>Processing</button>
-                <button>Delivered</button>
-                <button>Cancelled</button>
-            </div>
-            <!-- Table -->
-            <div class="max-w-7xl overflow-x-auto table-container">
-                <table
-                    class="min-w-full divide-y divide-gray-200 bg-white shadow-md table-auto"
+        <!-- Filters -->
+        <div class="flex gap-2 mb-2 mt-9">
+            <div>
+                <label
+                    class="cursor-pointer p-1 rounded-lg border-2 border-slate-500"
+                    :class="
+                        selectedFilter === 'all'
+                            ? 'bg-slate-700  text-slate-200'
+                            : 'bg-white text-slate-600 hover:bg-slate-100'
+                    "
+                    for="all"
+                    >All</label
                 >
-                    <thead class="">
-                        <tr>
-                            <th
-                                scope="col"
-                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
-                            >
-                                #
-                            </th>
-                            <th
-                                scope="col"
-                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
-                            >
-                                Customer
-                            </th>
-                            <th
-                                scope="col"
-                                class="px-2 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
-                            >
-                                Shipping Address
-                            </th>
-                            <th
-                                scope="col"
-                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
-                            >
-                                Items
-                            </th>
-                            <th
-                                scope="col"
-                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
-                            >
-                                Amount
-                            </th>
-                            <th
-                                scope="col"
-                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
-                            >
-                                <p class="ms-2">Status</p>
-                            </th>
-                            <th
-                                scope="col"
-                                class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
-                            >
-                                Tracking Number
-                            </th>
-                            <th
-                                scope="col"
-                                class="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-start"
-                            >
-                                Date
-                            </th>
-                            <th
-                                scope="col"
-                                class="w-24 py-3 text-xs font-medium text-gray-500 uppercase text-center"
-                            >
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <template v-for="order in orders.data" :key="order.id">
-                            <!-- Main Order Row -->
-                            <tr
-                                @click="toggleRow(order.id)"
-                                class="cursor-pointer"
-                                :class="{
-                                    ' bg-gray-100 hover:bg-gray-100':
-                                        expandedRows.has(order.id),
-                                    'hover:bg-gray-50 cursor-pointer ':
-                                        !expandedRows.has(order.id),
-                                }"
-                            >
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
-                                >
-                                    <div class="flex items-center">
-                                        <span class="mr-2">{{ order.id }}</span>
-                                        <!-- Expand/Collapse Icon -->
-                                        <svg
-                                            :class="{
-                                                'transform rotate-180':
-                                                    expandedRows.has(order.id),
-                                            }"
-                                            class="w-4 h-4 transition-all duration-300 ease-in-out"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="M19 9l-7 7-7-7"
-                                            />
-                                        </svg>
-                                    </div>
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
-                                >
-                                    <p class="font-bold">
-                                        {{
-                                            textHelper.limitText(
-                                                order.customer.name,
-                                                20
-                                            )
-                                        }}
-                                    </p>
-                                    <p class="text-sm">
-                                        {{
-                                            textHelper.limitText(
-                                                order.customer.email,
-                                                35
-                                            )
-                                        }}
-                                    </p>
-                                </td>
-                                <!-- // -->
-                                <td>
-                                    <div
-                                        @click.stop="
-                                            toggleAddressPopOver(
-                                                $event,
-                                                order.customer
-                                            )
-                                        "
-                                        class="bg-slate-200 p-1 rounded-md text-slate-600 hover:bg-slate-300 smooth"
-                                    >
-                                        {{ order.customer.country }}
-                                    </div>
-                                </td>
-                                <!-- // -->
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center align-middle"
-                                >
-                                    {{ order.total_tshirts }}
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold text-center align-middle"
-                                >
-                                    {{ order.total_amount + " $" ?? 0 }}
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
-                                >
-                                    <Status :type="order.status" />
-                                </td>
-                                <td class=" ">
-                                    <div class="flex justify-center">
-                                        <CopyText
-                                            v-if="order.tracking_number"
-                                            :text="order.tracking_number"
-                                            message="Text copied!"
-                                            class="bg-slate-200 rounded-md text-slate-500 w-fit px-2 hover:bg-slate-300 smooth"
-                                        />
-                                        <p
-                                            v-else
-                                            class="text-gray-500 text-sm text-center"
-                                        >
-                                            N/A
-                                        </p>
-                                    </div>
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
-                                >
-                                    {{ order.created_at }}
-                                </td>
-                                <td class="">
-                                    <div class="flex justify-center">
-                                        <EditOrder
-                                            :order-id="order.id"
-                                            :status="order.status"
-                                            :tracking-number="
-                                                order.tracking_number
-                                            "
-                                        />
-                                    </div>
-                                </td>
-                            </tr>
+                <input
+                    class="hidden"
+                    type="radio"
+                    name="ordersFilter"
+                    v-model="selectedFilter"
+                    value="all"
+                    id="all"
+                />
+            </div>
+            <div>
+                <label
+                    class="cursor-pointer p-1 rounded-lg border-2 border-slate-500"
+                    :class="
+                        selectedFilter === 'pending'
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-white text-slate-600 hover:bg-slate-100'
+                    "
+                    for="pending"
+                    >Pending</label
+                >
+                <input
+                    class="hidden"
+                    type="radio"
+                    name="ordersFilter"
+                    v-model="selectedFilter"
+                    value="pending"
+                    id="pending"
+                />
+            </div>
+            <div>
+                <label
+                    class="cursor-pointer p-1 rounded-lg border-2 border-slate-500"
+                    :class="
+                        selectedFilter === 'processing'
+                            ? 'bg-amber-500 text-white'
+                            : 'bg-white text-slate-600 hover:bg-slate-100'
+                    "
+                    for="processing"
+                    >Processing</label
+                >
+                <input
+                    class="hidden"
+                    type="radio"
+                    name="ordersFilter"
+                    v-model="selectedFilter"
+                    value="processing"
+                    id="processing"
+                />
+            </div>
+            <div>
+                <label
+                    class="cursor-pointer p-1 rounded-lg border-2 border-slate-500"
+                    :class="
+                        selectedFilter === 'delivered'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-white text-slate-600 hover:bg-slate-100'
+                    "
+                    for="delivered"
+                    >Delivered</label
+                >
+                <input
+                    class="hidden"
+                    type="radio"
+                    name="ordersFilter"
+                    v-model="selectedFilter"
+                    value="delivered"
+                    id="delivered"
+                />
+            </div>
+            <div>
+                <label
+                    class="cursor-pointer p-1 rounded-lg border-2 border-slate-500"
+                    :class="
+                        selectedFilter === 'cancelled'
+                            ? 'bg-red-500 text-white'
+                            : 'bg-white text-slate-600 hover:bg-slate-100'
+                    "
+                    for="cancelled"
+                    >Cancelled</label
+                >
+                <input
+                    class="hidden"
+                    type="radio"
+                    name="ordersFilter"
+                    v-model="selectedFilter"
+                    value="cancelled"
+                    id="cancelled"
+                />
+            </div>
+        </div>
 
-                            <!-- Expanded T-shirts Details Row -->
-                            <tr v-if="expandedRows.has(order.id)">
-                                <td colspan="9" class="bg-slate-200 py-2 px-3">
-                                    <div class="grid grid-cols-4 gap-3">
+        <!-- Table -->
+        <div class="max-w-7xl overflow-x-auto table-container">
+            <table
+                class="min-w-full divide-y divide-gray-200 bg-white shadow-md table-auto"
+            >
+                <thead class="">
+                    <tr>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
+                        >
+                            #
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
+                        >
+                            Customer
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-2 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
+                        >
+                            Shipping Address
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
+                        >
+                            Items
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
+                        >
+                            Amount
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
+                        >
+                            <p class="ms-2">Status</p>
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
+                        >
+                            Tracking Number
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-start"
+                        >
+                            Date
+                        </th>
+                        <th
+                            scope="col"
+                            class="w-24 py-3 text-xs font-medium text-gray-500 uppercase text-center"
+                        >
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <template
+                        v-if="orders.data.length > 0"
+                        v-for="order in orders.data"
+                        :key="order.id"
+                    >
+                        <!-- Main Order Row -->
+                        <tr
+                            @click="toggleRow(order.id)"
+                            class="cursor-pointer"
+                            :class="{
+                                ' bg-gray-100 hover:bg-gray-100':
+                                    expandedRows.has(order.id),
+                                'hover:bg-gray-50 cursor-pointer ':
+                                    !expandedRows.has(order.id),
+                            }"
+                        >
+                            <td
+                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
+                            >
+                                <div class="flex items-center">
+                                    <span class="mr-2">{{ order.id }}</span>
+                                    <!-- Expand/Collapse Icon -->
+                                    <svg
+                                        :class="{
+                                            'transform rotate-180':
+                                                expandedRows.has(order.id),
+                                        }"
+                                        class="w-4 h-4 transition-all duration-300 ease-in-out"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M19 9l-7 7-7-7"
+                                        />
+                                    </svg>
+                                </div>
+                            </td>
+                            <td
+                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
+                            >
+                                <p class="font-bold">
+                                    {{
+                                        textHelper.limitText(
+                                            order.customer.name,
+                                            20
+                                        )
+                                    }}
+                                </p>
+                                <p class="text-sm">
+                                    {{
+                                        textHelper.limitText(
+                                            order.customer.email,
+                                            35
+                                        )
+                                    }}
+                                </p>
+                            </td>
+                            <!-- // -->
+                            <td>
+                                <div
+                                    @click.stop="
+                                        toggleAddressPopOver(
+                                            $event,
+                                            order.customer
+                                        )
+                                    "
+                                    class="bg-slate-200 p-1 rounded-md text-slate-600 hover:bg-slate-300 smooth"
+                                >
+                                    {{ order.customer.country }}
+                                </div>
+                            </td>
+                            <!-- // -->
+                            <td
+                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center align-middle"
+                            >
+                                {{ order.total_tshirts }}
+                            </td>
+                            <td
+                                class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold text-center align-middle"
+                            >
+                                {{ order.total_amount + " $" ?? 0 }}
+                            </td>
+                            <td
+                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
+                            >
+                                <Status :type="order.status" />
+                            </td>
+                            <td class=" ">
+                                <div class="flex justify-center">
+                                    <CopyText
+                                        v-if="order.tracking_number"
+                                        :text="order.tracking_number"
+                                        message="Text copied!"
+                                        class="bg-slate-200 rounded-md text-slate-500 w-fit px-2 hover:bg-slate-300 smooth"
+                                    />
+                                    <p
+                                        v-else
+                                        class="text-gray-500 text-sm text-center"
+                                    >
+                                        N/A
+                                    </p>
+                                </div>
+                            </td>
+                            <td
+                                class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
+                            >
+                                {{ order.created_at }}
+                            </td>
+                            <td class="">
+                                <div class="flex justify-center">
+                                    <EditOrder
+                                        :order-id="order.id"
+                                        :status="order.status"
+                                        :tracking-number="order.tracking_number"
+                                    />
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Expanded T-shirts Details Row -->
+                        <tr v-if="expandedRows.has(order.id)">
+                            <td colspan="9" class="bg-slate-200 py-2 px-3">
+                                <div class="grid grid-cols-4 gap-3">
+                                    <div
+                                        v-for="tshirt in order.tshirts"
+                                        :key="tshirt.id"
+                                        class="border rounded p-3 bg-white shadow-sm hover:shadow-md"
+                                    >
                                         <div
-                                            v-for="tshirt in order.tshirts"
-                                            :key="tshirt.id"
-                                            class="border rounded p-3 bg-white shadow-sm hover:shadow-md"
+                                            class="flex flex-col items-center justify-center"
                                         >
+                                            <img
+                                                class="w-1/2 object-cover"
+                                                :src="
+                                                    tshirt.images.find(
+                                                        (img) => img.order === 1
+                                                    ).url
+                                                "
+                                                alt=""
+                                            />
                                             <div
-                                                class="flex flex-col items-center justify-center"
+                                                class="w-full text-center flex flex-col justify-center items-center"
                                             >
-                                                <img
-                                                    class="w-1/2 object-cover"
-                                                    :src="
-                                                        tshirt.images.find(
-                                                            (img) =>
-                                                                img.order === 1
-                                                        ).url
-                                                    "
-                                                    alt=""
-                                                />
+                                                <p class="font-bold">
+                                                    {{
+                                                        textHelper.limitText(
+                                                            tshirt.title,
+                                                            30
+                                                        )
+                                                    }}
+                                                </p>
                                                 <div
-                                                    class="w-full text-center flex flex-col justify-center items-center"
+                                                    class="flex justify-between items-center gap-4 mt-1 w-full"
                                                 >
-                                                    <p class="font-bold">
-                                                        {{
-                                                            textHelper.limitText(
-                                                                tshirt.title,
-                                                                30
-                                                            )
-                                                        }}
-                                                    </p>
                                                     <div
-                                                        class="flex justify-between items-center gap-4 mt-1 w-full"
+                                                        class="bg-teal-600 w-1/2 p-1 border border-white rounded-md text-start text-white flex items-center gap-1"
                                                     >
-                                                        <div
-                                                            class="bg-teal-600 w-1/2 p-1 border border-white rounded-md text-start text-white flex items-center gap-1"
+                                                        <p>Price:</p>
+                                                        <p
+                                                            class="font-bold w-full text-center"
                                                         >
-                                                            <p>Price:</p>
-                                                            <p
-                                                                class="font-bold w-full text-center"
-                                                            >
-                                                                {{
-                                                                    "$" +
-                                                                    tshirt.price
-                                                                }}
-                                                            </p>
-                                                        </div>
-                                                        <div
-                                                            class="bg-teal-600 w-1/2 p-1 border border-white rounded-md text-start text-white flex items-center gap-1"
+                                                            {{
+                                                                "$" +
+                                                                tshirt.price
+                                                            }}
+                                                        </p>
+                                                    </div>
+                                                    <div
+                                                        class="bg-teal-600 w-1/2 p-1 border border-white rounded-md text-start text-white flex items-center gap-1"
+                                                    >
+                                                        <p>Quantity:</p>
+                                                        <p
+                                                            class="font-bold w-full text-center"
                                                         >
-                                                            <p>Quantity:</p>
-                                                            <p
-                                                                class="font-bold w-full text-center"
-                                                            >
-                                                                {{
-                                                                    tshirt.pivot
-                                                                        .quantity
-                                                                }}
-                                                            </p>
-                                                        </div>
+                                                            {{
+                                                                tshirt.pivot
+                                                                    .quantity
+                                                            }}
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- table footer -->
-            <div
-                class="my-4 flex md:flex-row flex-col md:gap-0 gap-2 justify-between items-center w-full"
-            >
-                <!-- results -->
-                <div class="md:order-1 order-2">
-                    <p class="text-base text-slate-800">
-                        Showing
-                        <span class="text-green-600 font-bold text-lg">{{
-                            orders.from
-                        }}</span>
-                        to
-                        <span class="text-green-600 font-bold text-lg"
-                            >{{ orders.to }}
-                        </span>
-                        of {{ orders.total }} orders
-                    </p>
-                </div>
-                <nav class="">
-                    <div class="flex items-center -space-x-px h-8 text-sm">
-                        <template
-                            v-for="(link, index) in orders.links"
-                            :key="link.url"
-                        >
-                            <Link
-                                :preserve-scroll="true"
-                                v-if="link.url"
-                                :href="link.url"
-                                v-html="link.label"
-                                class="flex items-center justify-center px-3 h-8 leading-tight border border-gray-300 transition-colors"
-                                :class="{
-                                    'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700':
-                                        !link.active,
-                                    'bg-green-500 text-white hover:bg-green-600':
-                                        link.active,
-                                    'rounded-l-lg': index === 0,
-                                    'rounded-r-lg':
-                                        index === orders.links.length - 1,
-                                }"
-                            />
-                            <p
-                                v-else
-                                v-html="link.label"
-                                class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-slate-200 border border-gray-300"
-                                :class="{
-                                    'rounded-l-lg': index === 0,
-                                    'rounded-r-lg':
-                                        index === orders.links.length - 1,
-                                }"
-                            />
-                        </template>
-                    </div>
-                </nav>
-            </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                    <template v-else>
+                        <tr>
+                            <td colspan="100%" class="text-center py-4">
+                                <p class="text-gray-700">No orders found</p>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
         </div>
 
-        <!-- Empty State -->
-        <div v-else>
-            <EmptyState title="No Orders Yet !" />
+        <!-- table footer -->
+        <div
+            class="my-4 flex md:flex-row flex-col md:gap-0 gap-2 justify-between items-center w-full"
+        >
+            <!-- results -->
+            <div class="md:order-1 order-2">
+                <p class="text-base text-slate-800">
+                    Showing
+                    <span class="text-green-600 font-bold text-lg">{{
+                        orders.from
+                    }}</span>
+                    to
+                    <span class="text-green-600 font-bold text-lg"
+                        >{{ orders.to }}
+                    </span>
+                    of {{ orders.total }} orders
+                </p>
+            </div>
+            <nav class="">
+                <div class="flex items-center -space-x-px h-8 text-sm">
+                    <template
+                        v-for="(link, index) in orders.links"
+                        :key="link.url"
+                    >
+                        <Link
+                            :preserve-scroll="true"
+                            v-if="link.url"
+                            :href="link.url"
+                            v-html="link.label"
+                            class="flex items-center justify-center px-3 h-8 leading-tight border border-gray-300 transition-colors"
+                            :class="{
+                                'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700':
+                                    !link.active,
+                                'bg-green-500 text-white hover:bg-green-600':
+                                    link.active,
+                                'rounded-l-lg': index === 0,
+                                'rounded-r-lg':
+                                    index === orders.links.length - 1,
+                            }"
+                        />
+                        <p
+                            v-else
+                            v-html="link.label"
+                            class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-slate-200 border border-gray-300"
+                            :class="{
+                                'rounded-l-lg': index === 0,
+                                'rounded-r-lg':
+                                    index === orders.links.length - 1,
+                            }"
+                        />
+                    </template>
+                </div>
+            </nav>
         </div>
     </div>
 </template>

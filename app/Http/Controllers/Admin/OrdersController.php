@@ -8,9 +8,12 @@ use Illuminate\Http\Request;
 
 class OrdersController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::select('id', 'customer_id', 'status', 'tracking_number', 'created_at')
+        $orders = Order::when($request->filter && $request->filter != 'all', function ($query) use ($request) {
+            $query->where('status', $request->filter);
+        })
+        ->select('id', 'customer_id', 'status', 'tracking_number', 'created_at')
             ->with('customer')
             ->with([
                 'tshirts.images' => function ($query) {
@@ -18,6 +21,7 @@ class OrdersController extends Controller
                 },
             ])
             ->paginate(10)
+            ->withQueryString()
             ->through(function ($order) {
                 return [
                     ...$order->toArray(),
@@ -26,7 +30,8 @@ class OrdersController extends Controller
                     'total_amount' => $order->getTotalAmount(),
                 ];
             });
-        return inertia('Admin/Orders', ['orders' => $orders]);
+        $currentFilter = $request->filter ?? 'all';
+        return inertia('Admin/Orders', ['orders' => $orders, 'currentFilter' => $currentFilter]);
     }
 
     public function update(Request $request, $orderId)

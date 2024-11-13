@@ -39,15 +39,20 @@ class Tshirt extends Model
 
     public function getTotalSales()
     {
-        $this->loadMissing('orders');
-        return $this->orders->sum('pivot.quantity');
+        // Calculate total sales, excluding canceled orders
+        return $this->orders()
+            ->where('status', '!=', 'cancelled')  // Exclude canceled orders
+            ->sum('order_tshirt.quantity');      // Sum the quantity from the pivot table
     }
 
     public function getTotalRevenue()
     {
-        $this->loadMissing('orders');
-        return $this->orders->sum(function ($order) {
-            return $order->pivot->quantity * $order->pivot->price;
-        });
+        // Calculate total revenue, excluding canceled orders
+        return $this->orders()
+            ->where('status', '!=', 'cancelled')  // Exclude canceled orders
+            ->get()                              // Retrieve the filtered orders
+            ->sum(function ($order) {
+                return $order->pivot->quantity * $order->pivot->price;  // Sum revenue calculation
+            });
     }
 }

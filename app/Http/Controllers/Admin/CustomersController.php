@@ -21,8 +21,9 @@ class CustomersController extends Controller
         ->paginate(10)
         ->withQueryString()
         ->through(function ($customer) {
-            $customer->total_spent = $customer->totalSpent();
+            $customer->total_orders = $customer->total_orders();
             $customer->total_tshirts_bought = $customer->totalTshirtsBought();
+            $customer->total_spent = $customer->totalSpent();
             return $customer;
         });
         $searchTerm = request()->get('search');

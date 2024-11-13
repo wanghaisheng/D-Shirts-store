@@ -25,7 +25,7 @@ class OrderSeeder extends Seeder
             $customer = $customers->random();
 
             // Generate a random number of items (1 to 5 T-shirts per order)
-            $numberOfItems = rand(1, 5);
+            $numberOfItems = rand(1, 3);
             $selectedTshirts = $tshirts->random($numberOfItems);
 
             // Calculate the total price as the sum of selected T-shirt prices
@@ -41,7 +41,7 @@ class OrderSeeder extends Seeder
             // Attach the selected T-shirts to the order
             foreach ($selectedTshirts as $tshirt) {
                 $order->tshirts()->attach($tshirt->id, [
-                    'quantity' => rand(1, 3),     
+                    'quantity' => rand(1, 2),     
                     'price' => $tshirt->price     
                 ]);
             }

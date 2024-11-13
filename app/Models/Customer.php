@@ -20,14 +20,21 @@ class Customer extends Model
     public function totalSpent()
     {
         return $this->orders()
+            ->where('status', '!=', 'cancelled')
             ->join('order_tshirt', 'orders.id', '=', 'order_tshirt.order_id')
             ->where('orders.customer_id', $this->id)
             ->sum(DB::raw('order_tshirt.quantity * order_tshirt.price'));
     }
 
+    public function total_orders(){
+        $this->loadMissing('orders');
+        return $this->orders()->where('status', '!=', 'cancelled')->count();
+    }
+
     public function totalTshirtsBought()
     {
         return $this->orders()
+            ->where('status', '!=', 'cancelled')
             ->join('order_tshirt', 'orders.id', '=', 'order_tshirt.order_id')
             ->where('orders.customer_id', $this->id)
             ->sum('order_tshirt.quantity');
