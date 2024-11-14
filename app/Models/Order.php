@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    protected $fillable = ['customer_id', 'number_of_items', 'status', 'tracking_number'];
+    protected $fillable = ['customer_id', 'number_of_items', 'status', 'tracking_number', 'total_tshirts', 'total_amount'];
 
     public function customer()
     {
@@ -33,4 +33,5 @@ class Order extends Model
             return $tshirt->pivot->quantity * $tshirt->pivot->price;
         });
     }
+
 }

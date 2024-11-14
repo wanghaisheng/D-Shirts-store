@@ -20,7 +20,7 @@ class OrderSeeder extends Seeder
         $customers = Customer::all();
         $tshirts = Tshirt::all();
 
-        for ($i = 1; $i <= 30; $i++) {
+        for ($i = 1; $i <= 9; $i++) {
             // Select a random customer for each order
             $customer = $customers->random();
 
@@ -28,23 +28,27 @@ class OrderSeeder extends Seeder
             $numberOfItems = rand(1, 3);
             $selectedTshirts = $tshirts->random($numberOfItems);
 
-            // Calculate the total price as the sum of selected T-shirt prices
-
+            $date = now()->subDays(rand(1, 90));
             // Create the order with a generated tracking number and random status
             $order = Order::create([
                 'customer_id' => $customer->id,
                 'status' => $this->getRandomStatus(),
                 'tracking_number' => rand(10000000, 99999999), // 8-digit tracking number
-                'created_at' => now()->subDays(rand(1, 30)), // Random date within the past month
+                'created_at' => $date, 
             ]);
 
             // Attach the selected T-shirts to the order
             foreach ($selectedTshirts as $tshirt) {
                 $order->tshirts()->attach($tshirt->id, [
                     'quantity' => rand(1, 2),     
-                    'price' => $tshirt->price     
+                    'price' => $tshirt->price  ,
+                    'created_at' => $date,   
                 ]);
             }
+
+            $order->total_tshirts = $order->getTotalTshirts();
+            $order->total_amount = $order->getTotalAmount();
+            $order->save();
         }
     }
 

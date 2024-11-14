@@ -44,7 +44,7 @@ class HandleInertiaRequests extends Middleware
             'tshirts_count' => Tshirt::count(),
             'revenue' => Number::currency(
                 Order::where('status', '!=', 'cancelled')
-                    ->with('tshirts')  // Eager load tshirts to avoid lazy loading issues
+                    ->with('tshirts')
                     ->get()
                     ->sum(function ($order) {
                         return $order->getTotalAmount();

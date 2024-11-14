@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $table->enum('status', ['pending', 'processing', 'delivered', 'cancelled'])->default('pending');
+            $table->integer('total_tshirts')->nullable();
+            $table->float('total_amount')->nullable();
             $table->string('tracking_number')->nullable();
             $table->timestamps();
         });
