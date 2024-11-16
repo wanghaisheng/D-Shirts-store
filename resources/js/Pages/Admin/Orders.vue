@@ -6,7 +6,6 @@ import { useTextHelpers } from "@/plugins/textHelpers";
 import Status from "@/Components/Status.vue";
 import CopyText from "@/Components/CopyText.vue";
 import EditOrder from "@/Components/EditOrder.vue";
-import EmptyState from "@/Components/EmptyState.vue";
 import Popover from "primevue/popover";
 import Copy from "@/Icons/Copy.vue";
 

@@ -31,6 +31,11 @@ class TshirtsController extends Controller
                 ];
             });
 
+            // test empty state without deleting t-shirts
+            // $tshirts = [
+            //     'data' => [],
+            // ];
+
         return inertia('Admin/Tshirts', ['tshirts' => $tshirts]);
     }
 

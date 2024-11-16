@@ -216,7 +216,7 @@ const confirmDeleteTshirt = (tshirtId) => {
 </script>
 
 <template>
-    <div v-if="tshirts.data.length > 0">
+    <div>
         <Head title="T-Shirts" />
         <Toast />
         <ConfirmDialog group="templating" class="w-full md:w-1/2 lg:w-1/3">
@@ -509,6 +509,7 @@ const confirmDeleteTshirt = (tshirtId) => {
 
         <!-- T-shirts List -->
         <div
+            v-if="tshirts.data.length > 0"
             class="w-full overflow-x-auto grid lg:grid-cols-3 md:grid-cols-2 grid-flow-cols-1 gap-12 pb-8 pt-6"
         >
             <div
@@ -543,19 +544,15 @@ const confirmDeleteTshirt = (tshirtId) => {
                         class="bg-teal-600 w-1/4 p-2 border border-white rounded-md text-start text-white flex items-center gap-1"
                     >
                         <p>Price:</p>
-                        <p
-                            class="font-bold w-full text-center"
-                        >
-                            {{'$' +tshirt.price }}
+                        <p class="font-bold w-full text-center">
+                            {{ "$" + tshirt.price }}
                         </p>
                     </div>
                     <div
                         class="bg-teal-600 w-1/4 p-2 border border-white rounded-md text-start text-white flex items-center gap-1"
                     >
                         <p>Sells:</p>
-                        <p
-                            class="font-bold w-full text-center"
-                        >
+                        <p class="font-bold w-full text-center">
                             {{ tshirt.totalSells }}
                         </p>
                     </div>
@@ -563,13 +560,10 @@ const confirmDeleteTshirt = (tshirtId) => {
                         class="bg-teal-800 w-1/2 p-2 border border-white rounded-md text-start text-white flex items-center gap-1"
                     >
                         <p>Revenue:</p>
-                        <p
-                            class="font-bold text-xl w-full text-center"
-                        >
-                             {{ '$' + tshirt.totalRevenue }}
+                        <p class="font-bold text-xl w-full text-center">
+                            {{ "$" + tshirt.totalRevenue }}
                         </p>
                     </div>
-                    
                 </div>
                 <div class="grid grid-cols-4 gap-2">
                     <template v-for="i in 4" :key="i">
@@ -615,8 +609,13 @@ const confirmDeleteTshirt = (tshirtId) => {
             </div>
         </div>
 
+        <!-- Empty State -->
+        <div v-else>
+            <EmptyState title="No T-Shirts Yet !" />
+        </div>
+
         <!-- Pagination -->
-        <div
+        <div v-if="tshirts.data.length > 0"
             class="mt-4 mb-12 flex md:flex-row flex-col md:gap-0 gap-2 justify-between items-center w-full"
         >
             <!-- results -->
@@ -669,9 +668,5 @@ const confirmDeleteTshirt = (tshirtId) => {
                 </div>
             </nav>
         </div>
-    </div>
-    <!-- Empty State -->
-    <div v-else>
-        <EmptyState title="No T-Shirts Yet !" />
     </div>
 </template>

@@ -8,18 +8,19 @@ use App\Http\Controllers\Admin\OrdersController;
 use App\Http\Controllers\Admin\CustomersController;
 use App\Http\Controllers\Admin\RevenueController;
 use App\Http\Controllers\Admin\TshirtsController;
+use App\Http\Controllers\Customer\HomePageController;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-})->name('welcome');
+// ################################ Customer Routes ################################
+Route::get('/', [HomePageController::class, 'index'])->name('home');
 
-Route::redirect('/dashboard', '/admin/orders')->name('dashboard');
 
+
+
+
+
+
+
+// ############################### Admin Routes ###############################
 Route::prefix('admin')->middleware('auth')->group(function(){
     // orders
     Route::get('orders', [OrdersController::class, 'index'])->name('orders');
@@ -37,6 +38,7 @@ Route::prefix('admin')->middleware('auth')->group(function(){
     // revenue
     Route::get('revenue', [RevenueController::class, 'index'])->name('revenue');
 });
+Route::redirect('/dashboard', '/admin/orders')->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -44,4 +46,5 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// ################################ Auth Routes ################################
 require __DIR__.'/auth.php';
