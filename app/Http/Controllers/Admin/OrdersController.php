@@ -14,6 +14,7 @@ class OrdersController extends Controller
             $query->where('status', $request->filter);
         })
         ->select('id', 'customer_id', 'status', 'tracking_number', 'created_at')
+            ->orderBy('created_at', 'desc')
             ->with('customer')
             ->with([
                 'tshirts.images' => function ($query) {
@@ -26,6 +27,7 @@ class OrdersController extends Controller
                 return [
                     ...$order->toArray(),
                     'created_at' => $order->created_at->format('M d, Y H:i'),
+                    'created_at_human' => $order->created_at->diffForHumans(),
                     'total_tshirts' => $order->getTotalTshirts(),
                     'total_amount' => $order->getTotalAmount(),
                 ];

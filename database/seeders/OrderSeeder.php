@@ -11,16 +11,13 @@ use Illuminate\Support\Str;
 
 class OrderSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         // Fetch all customers and T-shirts
         $customers = Customer::all();
         $tshirts = Tshirt::all();
 
-        for ($i = 1; $i <= 9; $i++) {
+        for ($i = 1; $i <= 88; $i++) {
             // Select a random customer for each order
             $customer = $customers->random();
 
@@ -28,27 +25,52 @@ class OrderSeeder extends Seeder
             $numberOfItems = rand(1, 3);
             $selectedTshirts = $tshirts->random($numberOfItems);
 
-            $date = now()->subDays(rand(1, 90));
+            // Determine the time period for this order
+            $date = $this->getRandomDate();
+
             // Create the order with a generated tracking number and random status
             $order = Order::create([
                 'customer_id' => $customer->id,
                 'status' => $this->getRandomStatus(),
                 'tracking_number' => rand(10000000, 99999999), // 8-digit tracking number
-                'created_at' => $date, 
+                'created_at' => $date,
+                'updated_at' => $date,
             ]);
 
             // Attach the selected T-shirts to the order
             foreach ($selectedTshirts as $tshirt) {
                 $order->tshirts()->attach($tshirt->id, [
-                    'quantity' => rand(1, 2),     
-                    'price' => $tshirt->price  ,
-                    'created_at' => $date,   
+                    'quantity' => rand(1, 2),
+                    'price' => $tshirt->price,
+                    'created_at' => $date,
                 ]);
             }
 
+            // Update order totals
             $order->total_tshirts = $order->getTotalTshirts();
             $order->total_amount = $order->getTotalAmount();
             $order->save();
+        }
+    }
+
+    /**
+     * Generate a random date for orders based on different time periods.
+     */
+    private function getRandomDate(): \Carbon\Carbon
+    {
+        $period = rand(1, 4);
+
+        switch ($period) {
+            case 1: // All Time (last 5 years)
+                return now()->subYears(rand(1, 5))->subMonths(rand(0, 11))->subDays(rand(0, 30));
+            case 2: // This Year (last 12 months)
+                return now()->subMonths(rand(0, 11))->subDays(rand(0, 30));
+            case 3: // This Month (last 30 days)
+                return now()->subDays(rand(0, 30));
+            case 4: // Last Year (specific to the previous calendar year)
+                return now()->subYear()->subMonths(rand(0, 11))->subDays(rand(0, 30));
+            default:
+                return now();
         }
     }
 

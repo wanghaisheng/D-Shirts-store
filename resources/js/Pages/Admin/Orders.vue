@@ -336,7 +336,10 @@ watch(selectedFilter, (newFilter) => {
                                     "
                                     class="bg-slate-200 p-1 rounded-md text-slate-600 hover:bg-slate-300 smooth"
                                 >
-                                    {{ order.customer.country }}
+                                    {{textHelper.limitText(
+                                            order.customer.country,
+                                            15
+                                        )}}
                                 </div>
                             </td>
                             <!-- // -->
@@ -374,7 +377,10 @@ watch(selectedFilter, (newFilter) => {
                             <td
                                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
                             >
-                                {{ order.created_at }}
+                                <div>
+                                   <p> {{ order.created_at }}</p>
+                                    <p>( {{ order.created_at_human }})</p>
+                                </div>
                             </td>
                             <td class="">
                                 <div class="flex justify-center">
