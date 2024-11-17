@@ -3,12 +3,12 @@ import { Link } from "@inertiajs/vue3";
 </script>
 
 <template>
-    <div class="bg-slate-100">
+    <div class="bg-[#f5f5f5]">
         <!-- Nav bar -->
         
 
         <!-- Page Content -->
-        <div class="max-w-7xl mx-auto min-h-screen p-4">
+        <div class=" mx-auto min-h-screen">
             <slot />
         </div>
 
@@ -18,24 +18,14 @@ import { Link } from "@inertiajs/vue3";
                 <div class="flex justify-between items-center h-full p-4">
                     <div class="flex items-center gap-4">
                         <Link
-                            
+                            :href="route('home')"
                             class="text-slate-200 hover:text-slate-400 transition-colors duration-200"
                             >Home</Link
                         >
                         <Link
-                            
+                            :href="route('login')"
                             class="text-slate-200 hover:text-slate-400 transition-colors duration-200"
-                            >About</Link
-                        >
-                        <Link
-                            
-                            class="text-slate-200 hover:text-slate-400 transition-colors duration-200"
-                            >Products</Link
-                        >
-                        <Link
-                            
-                            class="text-slate-200 hover:text-slate-400 transition-colors duration-200"
-                            >Contact</Link
+                            >Login</Link
                         >
                     </div>
                     <p class="text-sm text-slate-100">
