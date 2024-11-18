@@ -13,3 +13,18 @@
         @apply rounded-md p-2 text-white text-sm font-semibold bg-red-500 hover:bg-red-600 transition-all duration-100 ease-in-out;
     }
 }
+
+@layer base {
+    @font-face {
+        font-family: "bespoke";
+        src: url("../../public/assets/fonts/BespokeStencil-Variable.ttf");
+    }
+    @font-face {
+        font-family: "main";
+        src: url("../../public/assets/fonts/Rubik-VariableFont_wght.ttf");
+    }
+    @font-face {
+        font-family: "secondary";
+        src: url("../../public/assets/fonts/RobotoMono-VariableFont_wght.ttf");
+    }
+}

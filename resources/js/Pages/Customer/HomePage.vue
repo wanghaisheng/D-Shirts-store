@@ -1,24 +1,46 @@
+<script setup>
+import DecodeTextEffect from "@/Components/DecodeTextEffect.vue";
+import { Head } from "@inertiajs/vue3";
+
+const props = defineProps({
+    tshirts: {
+        type: Array,
+        required: true,
+    },
+});
+
+console.log(props.tshirts);
+
+const generateRandomCode = () => {
+    const characters = "{}[]()<>/*-+=!@#$%^&*";
+    // Calculate characters based on viewport width
+    const minChars = 20; // Minimum characters per column
+    return Array(minChars)
+        .fill(0)
+        .map(() => characters[Math.floor(Math.random() * characters.length)])
+        .join("");
+};
+</script>
+
 <template>
-    <div
-        class="relative min-h-screen overflow-x-hidden bg-gradient-to-b from-emerald-50 to-white"
-    >
+    <div class="relative min-h-screen overflow-x-hidden bg-slate-200">
+        <Head title="Home" />
         <!-- Background Effects -->
-        <div class="fixed inset-0 w-full h-screen opacity-30">
+        <div class="fixed inset-0 w-full h-screen opacity-15">
             <div
-                class="absolute top-20 left-20 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl animate-blob"
+                class="absolute top-20 left-20 w-72 h-72 bg-green-800 rounded-full mix-blend-multiply filter blur-xl animate-blob"
             ></div>
             <div
-                class="absolute top-40 right-20 w-72 h-72 bg-teal-200 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"
+                class="absolute top-40 right-20 w-72 h-72 bg-green-800 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"
             ></div>
             <div
-                class="absolute bottom-40 left-1/2 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"
+                class="absolute bottom-40 left-1/2 w-72 h-72 bg-green-800 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"
             ></div>
         </div>
 
         <!-- Code background effect -->
-        <!-- Code background effect -->
         <div
-            class="fixed inset-0 opacity-5 font-mono text-xs overflow-hidden pointer-events-none"
+            class="fixed inset-0 opacity-15 font-mono text-xs overflow-hidden pointer-events-none text-green-900"
         >
             <div class="absolute inset-0 flex">
                 <!-- Multiple columns of animated code -->
@@ -43,38 +65,36 @@
         <div class="fixed inset-0 w-full h-screen">
             <!-- Title Section -->
             <div
-                class="absolute top-[15%] md:top-1/4 left-1/2 -translate-x-1/2 text-center z-10 px-4"
+                class="absolute top-[10%] left-1/2 -translate-x-1/2 text-center z-10 px-4 md:space-y-4 space-x-1 w-full"
             >
-                <h1
-                    class="text-3xl md:text-4xl lg:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 drop-shadow-sm"
-                >
-                    Wear What You Code
-                </h1>
-                <p
-                    class="mt-2 md:mt-4 text-base md:text-xl text-gray-600 animate-fade-in"
-                >
-                    Premium dev shirts, bug-free guarantee
-                </p>
+                <DecodeTextEffect
+                    text="Threads That Speak Your Language"
+                    class="md:text-5xl text-2xl w-full text-teal-600 font-bespoke font-bold"
+                />
+                <DecodeTextEffect
+                    text="Premium dev shirts, bug-free guarantee"
+                    class="md:text-xl text-base text-gray-600 font-secondary font-bold w-full"
+                />
             </div>
 
             <!-- Desktop T-shirts Layout -->
             <div
-                class="hidden md:flex absolute bottom-0 w-full justify-center items-end"
+                class="hidden md:flex absolute bottom-10 w-full justify-center items-end"
             >
                 <img
                     src="../../../../public/assets/home_images/left.png"
                     alt="T-shirt Left"
-                    class="w-1/4 object-contain transform -translate-x-8 rotate-[-15deg] origin-bottom relative z-0 hover:scale-105 transition-transform duration-300 filter drop-shadow-lg animate-fade-slide-left"
+                    class="w-1/4 animate-fade-slide-left"
                 />
                 <img
                     src="../../../../public/assets/home_images/middle.png"
                     alt="T-shirt Middle"
-                    class="w-1/4 object-contain transform scale-110 relative z-0 hover:scale-125 transition-transform duration-300 filter drop-shadow-xl animate-fade-slide-up"
+                    class="w-1/4 animate-fade-slide-up"
                 />
                 <img
                     src="../../../../public/assets/home_images/right.png"
                     alt="T-shirt Right"
-                    class="w-1/4 object-contain transform translate-x-8 rotate-[15deg] origin-bottom relative z-0 hover:scale-105 transition-transform duration-300 filter drop-shadow-lg animate-fade-slide-right"
+                    class="w-1/4 animate-fade-slide-right"
                 />
             </div>
 
@@ -85,7 +105,7 @@
                 <img
                     src="../../../../public/assets/home_images/middle.png"
                     alt="T-shirt Middle"
-                    class="w-3/4 max-w-[300px] object-contain relative z-0 hover:scale-110 transition-transform duration-300 filter drop-shadow-xl animate-fade-slide-up"
+                    class="w-1/2 max-w-[300px] object-contain relative z-0 hover:scale-110 transition-transform duration-300 filter drop-shadow-xl animate-fade-slide-up"
                 />
                 <div class="flex w-full justify-center gap-4">
                     <img
@@ -103,35 +123,45 @@
         </div>
 
         <!-- Second Layer (Curved) -->
-        <div class="relative min-h-screen mt-[90vh]">
+        <div class="relative min-h-screen h-full mt-[75vh]">
+            <!-- The Curve -->
             <div
-                class="absolute top-0 w-full h-[200vh] bg-white z-20 curved-section"
+                class="absolute border-t-2 border-teal-500 top-0 w-full min-h-[200vh] bg-slate-200 z-20 curved-section"
                 style="
-                    border-top-left-radius: 100% 15%;
-                    border-top-right-radius: 100% 15%;
-                    transform: translateY(-120px);
+                    border-top-left-radius: 50% 15%;
+                    border-top-right-radius: 50% 15%;
                 "
             >
-                <!-- Curve border effect -->
+                <!-- Start Shopping Title -->
+                <div class="h-44 w-full flex justify-center items-center">
+                    <p class="text-teal-800 text-2xl font-secondary font-bold">
+                        Start Shopping Now
+                    </p>
+                </div>
+                <!-- Tshirts Section -->
                 <div
-                    class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-emerald-200 to-transparent opacity-50"
-                ></div>
+                    class="h-full overflow-y-hidden grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 justify-center gap-8 w-full max-w-7xl mx-auto px-4 my-6"
+                >
+                    <div
+                        v-for="tshirt in tshirts"
+                        :key="tshirt.id"
+                        class="text-gray-800"
+                    >
+                        <img
+                            :src="tshirt.images[0].url"
+                            alt="T-shirt Image"
+                            class="w-full object-contain"
+                        />
+                        <p>{{ tshirt.title }}</p>
+                        <p class="text-green-500 font-secondary font-bold">
+                            ${{ tshirt.price }}
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </template>
-
-<script setup>
-const generateRandomCode = () => {
-    const characters = "{}[]()<>/*-+=!@#$%^&*";
-    // Calculate characters based on viewport width
-    const minChars = 20; // Minimum characters per column
-    return Array(minChars)
-        .fill(0)
-        .map(() => characters[Math.floor(Math.random() * characters.length)])
-        .join("");
-};
-</script>
 
 <style scoped>
 @keyframes blob {
@@ -214,17 +244,26 @@ const generateRandomCode = () => {
 .animate-fade-slide-up {
     animation: fadeSlideUp 1s ease-out forwards;
 }
+.animate-fade-slide-up:hover {
+    scale: 130%;
+}
 
 .animate-fade-slide-left {
     animation: fadeSlideLeft 1s ease-out forwards;
     animation-delay: 0.3s;
     opacity: 0;
 }
+.animate-fade-slide-left:hover {
+    scale: 130%;
+}
 
 .animate-fade-slide-right {
     animation: fadeSlideRight 1s ease-out forwards;
     animation-delay: 0.3s;
     opacity: 0;
+}
+.animate-fade-slide-right:hover {
+    scale: 130%;
 }
 
 .curved-section {
@@ -236,12 +275,6 @@ const generateRandomCode = () => {
         left: 0;
         right: 0;
         height: 1px;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(16, 185, 129, 0.2),
-            transparent
-        );
     }
 }
 

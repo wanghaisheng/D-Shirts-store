@@ -14,6 +14,9 @@ export default {
         extend: {
             fontFamily: {
                 sans: ["Figtree", ...defaultTheme.fontFamily.sans],
+                bespoke: ["bespoke", ...defaultTheme.fontFamily.sans],
+                main: ["main", ...defaultTheme.fontFamily.sans],
+                secondary: ["secondary", ...defaultTheme.fontFamily.sans],
             },
             colors: {
                 green: {
