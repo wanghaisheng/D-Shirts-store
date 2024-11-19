@@ -13,6 +13,15 @@ use App\Http\Controllers\Customer\HomePageController;
 // ################################ Customer Routes ################################
 Route::get('/', [HomePageController::class, 'index'])->name('home');
 
+Route::get('/privacy-policy', function () {
+    return Inertia::render('Customer/PrivacyPolicy');
+})->name('privacy-policy');
+
+Route::get('/terms-of-use', function () {
+    return Inertia::render('Customer/TermsOfUse');
+})->name('terms-of-use');
+
+
 
 
 
@@ -21,7 +30,7 @@ Route::get('/', [HomePageController::class, 'index'])->name('home');
 
 
 // ############################### Admin Routes ###############################
-Route::prefix('admin')->middleware('auth')->group(function(){
+Route::prefix('admin')->middleware('auth')->group(function () {
     // orders
     Route::get('orders', [OrdersController::class, 'index'])->name('orders');
     Route::put('orders/{order}', [OrdersController::class, 'update'])->name('orders.update');
@@ -30,7 +39,7 @@ Route::prefix('admin')->middleware('auth')->group(function(){
     Route::get('customers', [CustomersController::class, 'index'])->name('customers');
 
     // t-shirts 
-    Route::get('t-shirts', [TshirtsController::class, 'index'])->name('t-shirts');  
+    Route::get('t-shirts', [TshirtsController::class, 'index'])->name('t-shirts');
     Route::post('t-shirts', [TshirtsController::class, 'store'])->name('t-shirts.store');
     Route::post('t-shirts/{tshirt}', [TshirtsController::class, 'update'])->name('t-shirts.update');
     Route::delete('t-shirts/{tshirt}', [TshirtsController::class, 'destroy'])->name('t-shirts.destroy');
@@ -47,4 +56,4 @@ Route::middleware('auth')->group(function () {
 });
 
 // ################################ Auth Routes ################################
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

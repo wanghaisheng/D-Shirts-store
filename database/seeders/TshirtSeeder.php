@@ -16,7 +16,7 @@ class TshirtSeeder extends Seeder
     public function run()
     {
         // Define the common image filenames
-        $imageFiles = ['mainImage.jpg', 'secondImage.jpeg', 'thirdImage.jpeg', 'forthImage.jpeg', 'fifthImage.jpeg'];
+        $imageFiles = ['mainImage.png', 'secondImage.jpeg', 'thirdImage.jpeg', 'forthImage.jpeg', 'fifthImage.jpeg'];
 
         // Array of t-shirt data with unique titles and descriptions
         $tshirts = [
