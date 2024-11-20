@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tshirt extends Model
 {
-    protected $fillable = ['title', 'description', 'price', 'listed', 'images_folder_name'];
+    protected $fillable = ['title', 'slug', 'description', 'price', 'listed', 'images_folder_name'];
 
     public function images()
     {

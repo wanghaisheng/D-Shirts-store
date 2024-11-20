@@ -6,8 +6,10 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Tshirt;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Number;
 use Inertia\Middleware;
+
 
 class HandleInertiaRequests extends Middleware
 {
@@ -33,23 +35,26 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        return [
-            ...parent::share($request),
-            'auth' => [
-                'user' => $request->user(),
-            ],
+        if (Auth::check()) {
+            return [
+                ...parent::share($request),
+                'auth' => [
+                    'user' => $request->user(),
+                ],
 
-            'orders_count' => Order::count(),
-            'customers_count' => Customer::count(),
-            'tshirts_count' => Tshirt::count(),
-            'revenue' => Number::currency(
-                Order::where('status', '!=', 'cancelled')
-                    ->with('tshirts')
-                    ->get()
-                    ->sum(function ($order) {
-                        return $order->getTotalAmount();
-                    })
-            ),
-        ];
+                'orders_count' => Order::count(),
+                'customers_count' => Customer::count(),
+                'tshirts_count' => Tshirt::count(),
+                'revenue' => Number::currency(
+                    Order::where('status', '!=', 'cancelled')
+                        ->with('tshirts')
+                        ->get()
+                        ->sum(function ($order) {
+                            return $order->getTotalAmount();
+                        })
+                ),
+            ];
+        }
+        return parent::share($request);
     }
 }

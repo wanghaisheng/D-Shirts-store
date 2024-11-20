@@ -8,6 +8,7 @@ use App\Models\ShirtImage;
 use App\Models\Tshirt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TshirtsController extends Controller
 {
@@ -60,6 +61,7 @@ class TshirtsController extends Controller
         // Create a new Tshirt instance and save it
         $tshirt = new Tshirt();
         $tshirt->title = $validatedData['title'];
+        $tshirt->slug = Str::slug($validatedData['title'], '-');
         $tshirt->price = $validatedData['price'];
         $tshirt->description = $validatedData['description'];
         $tshirt->images_folder_name = $folderName;
@@ -123,6 +125,7 @@ class TshirtsController extends Controller
         $changes = [];
         if ($tshirt->title !== $validatedData['title']) {
             $changes['title'] = $validatedData['title'];
+            $changes['slug'] = Str::slug($validatedData['title'], '-');
         }
         if ($tshirt->price !== (float) $validatedData['price']) {
             $changes['price'] = (float) $validatedData['price'];

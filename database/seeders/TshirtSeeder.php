@@ -5,8 +5,8 @@ namespace Database\Seeders;
 use App\Helpers\TitleToFolderName;
 use App\Models\ShirtImage;
 use App\Models\Tshirt;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class TshirtSeeder extends Seeder
 {
@@ -63,6 +63,7 @@ class TshirtSeeder extends Seeder
             // Create T-shirt record
             $tshirt = Tshirt::create([
                 'title' => $tshirtData['title'],
+                'slug' => Str::slug($tshirtData['title'], '-'),
                 'description' => $tshirtData['description'],
                 'price' => 29.00,
                 'images_folder_name' => TitleToFolderName::convert($tshirtData['title']),

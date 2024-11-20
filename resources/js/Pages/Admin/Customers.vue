@@ -4,7 +4,6 @@ import { Head, router, Link } from "@inertiajs/vue3";
 import { debounce } from "lodash";
 import { ref, watch } from "vue";
 import { useTextHelpers } from "@/plugins/textHelpers";
-import EmptyState from "@/Components/EmptyState.vue";
 
 defineOptions({ layout: Admin });
 
