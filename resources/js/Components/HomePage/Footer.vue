@@ -33,7 +33,7 @@ import Website from "@/Icons/Website.vue";
                 class="md:w-1/3 w-full flex flex-col justify-center items-center gap-2 md:order-2 order-2"
             >
             <Link :href="route('home')">
-                <img src="assets/logo/d-shirts.png" alt="" class="w-12" />
+                <img src="../../../../public/assets/logo/d-shirts.png" alt="" class="w-12" />
             </Link>
                 <p class="text-slate-800 font-main text-sm">
                     © 2025 All rights reserved.

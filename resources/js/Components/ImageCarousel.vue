@@ -1,4 +1,5 @@
 <script setup>
+import Arrow from "@/Icons/Arrow.vue";
 import { ref, computed } from "vue";
 
 const props = defineProps({
@@ -49,15 +50,15 @@ const selectImage = (index) => {
         <!-- Navigation Arrows -->
         <button
             @click="navigatePrev"
-            class="absolute left-0 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white"
+            class="absolute left-0 top-[40%] m-1 text-teal-600 border-2 border-teal-600 hover:text-teal-800 hover:border-teal-800 rounded-full"
         >
-            ←
+            <Arrow class="w-10 h-10" />
         </button>
         <button
             @click="navigateNext"
-            class="absolute right-0 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white"
+            class="absolute right-0 top-[40%] m-1 text-teal-600 border-2 border-teal-600 hover:text-teal-800 hover:border-teal-800 rounded-full"
         >
-            →
+            <Arrow class="w-10 h-10 rotate-180" />
         </button>
 
         <!-- Thumbnail Navigation -->
@@ -66,10 +67,10 @@ const selectImage = (index) => {
                 v-for="(image, index) in images"
                 :key="index"
                 @click="selectImage(index)"
-                class="w-16 h-16 cursor-pointer border-2 transition-all"
+                class="w-16 h-16 p-1 cursor-pointer border-2 transition-all rounded-md bg-gray-100"
                 :class="{
-                    'border-blue-500': index === currentImageIndex,
-                    'border-gray-300': index !== currentImageIndex,
+                    'border-teal-500': index === currentImageIndex,
+                    'border-gray-50': index !== currentImageIndex,
                 }"
             >
                 <img :src="image" class="w-full h-full object-cover" />
@@ -105,11 +106,4 @@ const selectImage = (index) => {
     transform: translateX(100%);
 }
 
-/* Optional additional styling */
-button {
-    transition: background-color 0.1s ease;
-}
-button:hover {
-    background-color: rgba(0, 0, 0, 0.7);
-}
 </style>

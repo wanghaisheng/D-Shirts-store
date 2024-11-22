@@ -28,3 +28,17 @@
         src: url("../../public/assets/fonts/RobotoMono-VariableFont_wght.ttf");
     }
 }
+
+.p-inputnumber-increment-button{
+    background-color: #9aa3b5 !important;
+}
+.p-inputnumber-decrement-button{
+    background-color: #9aa3b5 !important;
+}
+.p-icon{
+    color: #fff !important;
+}
+
+.p-inputtext:enabled:focus{
+    border-color: #cdd5e1 !important;
+}

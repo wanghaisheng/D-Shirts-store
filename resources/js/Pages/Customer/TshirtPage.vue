@@ -6,6 +6,10 @@ import ImageCarousel from "@/Components/ImageCarousel.vue";
 import Price from "@/Components/TshirtPage/Price.vue";
 import Reviews from "@/Components/TshirtPage/Reviews.vue";
 import InputNumber from "primevue/inputnumber";
+import Description from "@/Components/TshirtPage/Description.vue";
+import Quality from "@/Icons/Quality.vue";
+import Card from "@/Icons/Card.vue";
+import World from "@/Icons/World.vue";
 
 defineOptions({ layout: Customer });
 
@@ -41,63 +45,39 @@ const sizes = [
         label: "XL",
     },
 ];
-
-watch(selectedSize, () => {
-    console.log(selectedSize.value);
-});
 </script>
 
 <template>
     <div class="py-16">
         <Head title="Tshirt Page" />
-        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-            <div class="flex flex-col gap-24 md:flex-row py-2 px-4">
+        <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            <div class="flex flex-col md:gap-16 gap-4 md:flex-row py-2 px-4">
                 <div
                     class="md:w-1/2 w-full order-2 flex flex-col gap-8 justify-between"
                 >
-                    <div class="space-y-2">
-                        <div class="">
+                    <div class="">
+                        <div class="space-y-2 mb-6">
                             <p
-                                class="text-3xl font-bold text-gray-800 font-main"
+                                class="md:text-3xl text-2xl font-bold text-gray-800 font-main"
                             >
                                 {{ tshirt.title }}
                             </p>
-                        </div>
-                        <div>
                             <Price :price="tshirt.price" />
-                        </div>
-                        <div>
                             <Reviews :num="tshirt.title" />
+                            <div class="bg-slate-500 h-[1px] w-full"></div>
                         </div>
-                        <div class="bg-slate-500 h-[1px] w-full"></div>
-                        <div class="flex justify-between items-center gap-3">
-                            <!-- Quantity -->
-                            <div class="w-1/2">
-                                <p class="text-sm text-gray-500">Quantity</p>
-                                <InputNumber
-                                    v-model="quantity"
-                                    inputId="horizontal-buttons"
-                                    :min="1"
-                                    :max="10"
-                                    showButtons
-                                    buttonLayout="horizontal"
-                                    :step="1"
-                                >
-                                    <div>
-                                        <p>+</p>
-                                    </div>
-                                    <div>
-                                        <p>-</p>
-                                    </div>
-                                </InputNumber>
-                            </div>
+                        <div class="flex flex-col gap-6">
                             <!-- Size -->
-                            <div class="w-1/2 ">
-                                <p class="text-sm text-gray-500 ">Size</p>
-                                <div class="flex gap-2 mt-2">
+                            <div class="space-y-1">
+                                <p
+                                    class="text-lg text-slate-800 font-main ms-1"
+                                >
+                                    Size
+                                </p>
+                                <div class="flex gap-2">
                                     <div v-for="size in sizes" :key="size.key">
                                         <label
-                                            class="cursor-pointer py-1 px-2 rounded-lg border-2 border-slate-500"
+                                            class="cursor-pointer py-2 px-4 rounded-lg border-2 border-slate-500"
                                             :class="
                                                 selectedSize === size.key
                                                     ? 'bg-slate-700  text-slate-200'
@@ -117,9 +97,54 @@ watch(selectedSize, () => {
                                     </div>
                                 </div>
                             </div>
+                            <!-- Quantity -->
+                            <div class="">
+                                <p
+                                    class="text-lg text-slate-800 font-main ms-1"
+                                >
+                                    Quantity
+                                </p>
+                                <InputNumber
+                                    v-model="quantity"
+                                    inputId="horizontal-buttons"
+                                    :min="1"
+                                    :max="10"
+                                    showButtons
+                                    buttonLayout="horizontal"
+                                    :step="1"
+                                >
+                                    <div>
+                                        <p>+</p>
+                                    </div>
+                                    <div>
+                                        <p>-</p>
+                                    </div>
+                                </InputNumber>
+                            </div>
+                            <!-- Features -->
+                            <div class="space-y-1 mt-4">
+                                <div
+                                    class="flex justify-start items-center gap-2 text-slate-500"
+                                >
+                                    <Quality class="w-4 h-4" />
+                                    <p>Premium quality material</p>
+                                </div>
+                                <div
+                                    class="flex justify-start items-center gap-2 text-slate-500"
+                                >
+                                    <Card class="w-4 h-4" />
+                                    <p>100% Secured Payment</p>
+                                </div>
+                                <div
+                                    class="flex justify-start items-center gap-2 text-slate-500"
+                                >
+                                    <World class="w-4 h-4" />
+                                    <p>Free shipping worldwide</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <button class="btn w-full">Add to Cart</button>
+                    <button class="btn w-full !p-3">Add to Cart</button>
                 </div>
 
                 <div class="md:w-1/2 w-full order-1 flex flex-col gap-24">
@@ -128,8 +153,12 @@ watch(selectedSize, () => {
                     />
                 </div>
             </div>
-            <div></div>
-            Tshirt description / sizing
+            <div>
+                <Description
+                    :title="tshirt.title"
+                    :description="tshirt.description"
+                />
+            </div>
         </div>
     </div>
 </template>
