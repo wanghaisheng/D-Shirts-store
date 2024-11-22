@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\OrdersController;
 use App\Http\Controllers\Admin\CustomersController;
 use App\Http\Controllers\Admin\RevenueController;
 use App\Http\Controllers\Admin\TshirtsController;
+use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\HomePageController;
 use App\Http\Controllers\Customer\TshirtsController as CustomerTshirtsController;
 
@@ -24,6 +25,7 @@ Route::get('/terms-of-use', function () {
 Route::redirect('/t-shirt', '/');
 Route::get('/t-shirt/{slug}', [CustomerTshirtsController::class, 'tshirtPage'])->name('tshirt.page');
 
+Route::get('/cart', [CartController::class, 'cartPage'])->name('cart');
 
 
 // ############################### Admin Routes ###############################

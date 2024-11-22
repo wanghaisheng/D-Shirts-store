@@ -1,6 +1,6 @@
 <script setup>
 import { Head } from "@inertiajs/vue3";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import Customer from "@/Layouts/Customer.vue";
 import ImageCarousel from "@/Components/ImageCarousel.vue";
 import Price from "@/Components/TshirtPage/Price.vue";

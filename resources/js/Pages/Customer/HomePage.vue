@@ -7,6 +7,7 @@ import TshirtsSection from "@/Components/HomePage/TshirtsSection.vue";
 import FAQs from "@/Components/HomePage/FAQs.vue";
 import Testimonials from "@/Components/HomePage/TestimonialSection.vue";
 import Footer from "@/Components/HomePage/Footer.vue";
+import Cart from "@/Components/Cart.vue";
 
 const props = defineProps({
     tshirts: {
@@ -29,6 +30,7 @@ const generateRandomCode = () => {
 <template>
     <div class="relative min-h-screen overflow-x-hidden bg-slate-200">
         <Head title="Home" />
+        <Cart />
         <!-- Background Effects -->
         <div class="fixed inset-0 w-full h-screen opacity-15">
             <div
