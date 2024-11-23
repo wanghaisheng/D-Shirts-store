@@ -35,6 +35,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $cart = session()->get('cart', []);
         if (Auth::check()) {
             return [
                 ...parent::share($request),
@@ -55,6 +56,6 @@ class HandleInertiaRequests extends Middleware
                 ),
             ];
         }
-        return parent::share($request);
+        return [parent::share($request), 'cart' => $cart];
     }
 }

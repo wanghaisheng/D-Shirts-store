@@ -35,7 +35,10 @@
 .p-inputnumber-decrement-button{
     background-color: #9aa3b5 !important;
 }
-.p-icon{
+.p-inputnumber-increment-button .p-icon {
+    color: #fff !important;
+}
+.p-inputnumber-decrement-button .p-icon {
     color: #fff !important;
 }
 

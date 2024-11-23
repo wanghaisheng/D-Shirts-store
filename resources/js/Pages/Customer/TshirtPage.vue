@@ -10,6 +10,9 @@ import Description from "@/Components/TshirtPage/Description.vue";
 import Quality from "@/Icons/Quality.vue";
 import Card from "@/Icons/Card.vue";
 import World from "@/Icons/World.vue";
+import { useForm } from "@inertiajs/vue3";
+import { useToast } from "primevue/usetoast";
+import Toast from "primevue/toast";
 
 defineOptions({ layout: Customer });
 
@@ -20,35 +23,57 @@ const props = defineProps({
     },
 });
 
-const quantity = ref(1);
-const selectedSize = ref();
+const toast = useToast();
 
-const sizes = [
-    {
-        key: "xs",
-        label: "XS",
-    },
-    {
-        key: "s",
-        label: "S",
-    },
-    {
-        key: "m",
-        label: "M",
-    },
-    {
-        key: "l",
-        label: "L",
-    },
-    {
-        key: "xl",
-        label: "XL",
-    },
-];
+const mainImage = props.tshirt.images
+    .map((image) => (image.order === 1 ? image.url : null))
+    .filter(Boolean);
+const cartForm = useForm({
+    tshirtId: props.tshirt.id,
+    tshirtTitle: props.tshirt.title,
+    tshirtImage: mainImage[0],
+    tshirtPrice: props.tshirt.price,
+    size: "",
+    quantity: 1,
+});
+
+function handleAddToCart() {
+    if (cartForm.size === "") {
+        console.log("Please select a size");
+        toast.add({
+            severity: "error",
+            summary: "Error",
+            detail: "Please select a size",
+            life: 3000,
+        });
+        return;
+    }
+    cartForm.post(route("cart.add"), {
+        onSuccess: () => {
+            toast.add({
+                severity: "success",
+                summary: "Success",
+                detail: "Added to cart successfully",
+                life: 3000,
+            });
+        },
+        onError: () => {
+            toast.add({
+                severity: "error",
+                summary: "Error",
+                detail: "Error adding to cart",
+                life: 3000,
+            });
+        },
+    });
+}
+
+const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
 </script>
 
 <template>
     <div class="py-16">
+        <Toast position="top-center" />
         <Head title="Tshirt Page" />
         <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
             <div class="flex flex-col md:gap-16 gap-4 md:flex-row py-2 px-4">
@@ -75,24 +100,24 @@ const sizes = [
                                     Size
                                 </p>
                                 <div class="flex gap-2">
-                                    <div v-for="size in sizes" :key="size.key">
+                                    <div v-for="size in sizes" :key="size">
                                         <label
                                             class="cursor-pointer py-2 px-4 rounded-lg border-2 border-slate-500"
                                             :class="
-                                                selectedSize === size.key
+                                                cartForm.size === size
                                                     ? 'bg-slate-700  text-slate-200'
                                                     : 'bg-white text-slate-600 hover:bg-slate-100'
                                             "
-                                            :for="size.key"
-                                            >{{ size.label }}</label
+                                            :for="size"
+                                            >{{ size }}</label
                                         >
                                         <input
                                             class="hidden"
                                             type="radio"
                                             name="dataFilter"
-                                            v-model="selectedSize"
-                                            :value="size.key"
-                                            :id="size.key"
+                                            v-model="cartForm.size"
+                                            :value="size"
+                                            :id="size"
                                         />
                                     </div>
                                 </div>
@@ -105,7 +130,7 @@ const sizes = [
                                     Quantity
                                 </p>
                                 <InputNumber
-                                    v-model="quantity"
+                                    v-model="cartForm.quantity"
                                     inputId="horizontal-buttons"
                                     :min="1"
                                     :max="10"
@@ -144,7 +169,9 @@ const sizes = [
                             </div>
                         </div>
                     </div>
-                    <button class="btn w-full !p-3">Add to Cart</button>
+                    <button @click="handleAddToCart" class="btn w-full !p-3">
+                        Add to Cart
+                    </button>
                 </div>
 
                 <div class="md:w-1/2 w-full order-1 flex flex-col gap-24">

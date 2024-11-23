@@ -26,6 +26,8 @@ Route::redirect('/t-shirt', '/');
 Route::get('/t-shirt/{slug}', [CustomerTshirtsController::class, 'tshirtPage'])->name('tshirt.page');
 
 Route::get('/cart', [CartController::class, 'cartPage'])->name('cart');
+Route::post('/cart', [CartController::class, 'addToCart'])->name('cart.add');
+Route::post('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
 
 
 // ############################### Admin Routes ###############################
