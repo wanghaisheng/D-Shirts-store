@@ -1,36 +1,94 @@
 <script setup>
 import { Head, Link, router } from "@inertiajs/vue3";
 import Customer from "@/Layouts/Customer.vue";
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import Remove from "@/Icons/Remove.vue";
 import { useTextHelpers } from "@/plugins/textHelpers";
 import Tshirt from "@/Icons/Tshirt.vue";
-import { useForm } from "@inertiajs/vue3";
+import { useToast } from "primevue/usetoast";
+import Toast from "primevue/toast";
+import { loadStripe } from "@stripe/stripe-js";
 
 defineOptions({ layout: Customer });
+
+const props = defineProps({
+    clientSecret: {
+        type: Object,
+    },
+});
+
 const page = usePage();
+
+const toast = useToast();
 
 const cart = computed(() => page.props.cart);
 
+const cartTotal = computed(() =>
+    page.props.cart.reduce(
+        (acc, item) => acc + item.tshirt_price * item.quantity,
+        0
+    )
+);
+
 const textHelper = useTextHelpers();
 
-
 function removeItem(id) {
-    console.log(id);
-    router.post('/cart/remove/' + id);
+    router.delete(route("cart.remove", { id: id }), {
+        onSuccess: () => {
+            toast.add({
+                severity: "info",
+                summary: "Item removed",
+                detail: "Item removed from cart",
+                life: 3000,
+            });
+        },
+        onError: () => {
+            toast.add({
+                severity: "error",
+                summary: "Error",
+                detail: "Item could not be removed from cart",
+                life: 3000,
+            });
+        },
+    });
 }
+
+function increaseQuantity(id) {
+    router.post(route("cart.increaseQuantity", { id: id }));
+}
+
+function decreaseQuantity(id) {
+    router.post(route("cart.decreaseQuantity", { id: id }));
+}
+
+const stripe = loadStripe("pk_test_51QP7uUBHCvL4QLRBIzapKyIwaWtCnMOlutux3hjkxUYJhp2KpfPSOYqdR2K6cQMReEB6lzqOwq0jkpQ3cOEGRP7M00IUXChOal");
+
+onMounted(() => {
+    stripe.then(async (stripe) => {
+        const checkout = await stripe?.initEmbeddedCheckout({
+            clientSecret: props.clientSecret,
+        });
+
+        checkout?.mount("#checkout-container");
+    });
+});
 </script>
 
 <template>
     <div class="">
         <Head title="Cart" />
+        <Toast position="top-center" />
         <div class="max-w-7xl mx-auto pt-10 px-8 space-y-6">
             <div class="flex justify-between items-center w-2/3 pe-2">
                 <h1 class="font-secondary font-semibold text-xl">
                     Shopping cart
                 </h1>
-                <Link class="bg-slate-700 text-slate-200 px-2 py-1p rounded-md  flex justify-center items-center gap-2" :href="route('home')">
+                <Link
+                    v-if="cart.length > 0"
+                    class="bg-slate-700 text-slate-200 px-2 py-1p rounded-md flex justify-center items-center gap-2"
+                    :href="route('home')"
+                >
                     <Tshirt class="w-[1.3rem]" />
                     <p>Back to shop</p>
                 </Link>
@@ -78,7 +136,9 @@ function removeItem(id) {
                             <p class="text-sm text-gray-500">Quantity</p>
                             <div class="flex justify-center items-center gap-2">
                                 <button
-                                    class="bg-slate-400 hover:bg-slate-500 text-white w-8 h-8 rounded-full"
+                                    @click="decreaseQuantity(item.item_id)"
+                                    :disabled="item.quantity == 1"
+                                    class="bg-slate-400 hover:bg-slate-500 text-white w-8 h-8 rounded-full disabled:cursor-not-allowed disabled:bg-slate-300"
                                 >
                                     -
                                 </button>
@@ -87,8 +147,10 @@ function removeItem(id) {
                                 >
                                     {{ item.quantity }}
                                 </p>
-                                <button 
-                                    class="bg-slate-400 hover:bg-slate-500 text-white w-8 h-8 rounded-full"
+                                <button
+                                    @click="increaseQuantity(item.item_id)"
+                                    :disabled="item.quantity == 10"
+                                    class="bg-slate-400 hover:bg-slate-500 text-white w-8 h-8 rounded-full disabled:cursor-not-allowed disabled:bg-slate-300"
                                 >
                                     +
                                 </button>
@@ -102,7 +164,10 @@ function removeItem(id) {
                                 ${{ item.tshirt_price * item.quantity }}
                             </p>
                         </div>
-                        <div @click="removeItem(item.item_id)" class="absolute right-3 top-3">
+                        <div
+                            @click="removeItem(item.item_id)"
+                            class="absolute right-3 top-3"
+                        >
                             <Remove
                                 class="w-5 h-5 text-slate-700 hover:text-red-800 cursor-pointer"
                             />
@@ -110,8 +175,13 @@ function removeItem(id) {
                     </div>
                 </div>
                 <div
-                    class="w-1/3 bg-slate-50 border border-slate-300 rounded-xl shadow-xl h-[75vh]"
-                ></div>
+                    class="w-1/3 bg-slate-50 border border-slate-300 rounded-xl shadow-xl min-h-[75vh] my-4"
+                >
+                <div id="checkout-container">
+
+                </div>
+                    <p>Total Price: {{ cartTotal }}</p>
+                </div>
             </div>
 
             <div

@@ -1,6 +1,6 @@
 <script setup>
 import { Head } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import Customer from "@/Layouts/Customer.vue";
 import ImageCarousel from "@/Components/ImageCarousel.vue";
 import Price from "@/Components/TshirtPage/Price.vue";
@@ -13,6 +13,7 @@ import World from "@/Icons/World.vue";
 import { useForm } from "@inertiajs/vue3";
 import { useToast } from "primevue/usetoast";
 import Toast from "primevue/toast";
+import { usePage } from "@inertiajs/vue3";
 
 defineOptions({ layout: Customer });
 
@@ -22,6 +23,9 @@ const props = defineProps({
         required: true,
     },
 });
+
+const page = usePage();
+const cartDuplicationError = computed(() => page.props[0].errors.cart);
 
 const toast = useToast();
 
@@ -39,7 +43,6 @@ const cartForm = useForm({
 
 function handleAddToCart() {
     if (cartForm.size === "") {
-        console.log("Please select a size");
         toast.add({
             severity: "error",
             summary: "Error",
@@ -48,22 +51,24 @@ function handleAddToCart() {
         });
         return;
     }
+
     cartForm.post(route("cart.add"), {
         onSuccess: () => {
-            toast.add({
-                severity: "success",
-                summary: "Success",
-                detail: "Added to cart successfully",
-                life: 3000,
-            });
-        },
-        onError: () => {
-            toast.add({
-                severity: "error",
-                summary: "Error",
-                detail: "Error adding to cart",
-                life: 3000,
-            });
+             if (Object.keys(page.props[0].errors).length === 0) {
+                toast.add({
+                    severity: "success",
+                    summary: "Success",
+                    detail: "Added to cart successfully",
+                    life: 3000,
+                });
+            } else {
+                toast.add({
+                    severity: "warn",
+                    summary: "Warning",
+                    detail: page.props[0].errors.cart || "An error occurred",
+                    life: 3000,
+                });
+            }
         },
     });
 }
@@ -77,7 +82,8 @@ const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
         <Head title="Tshirt Page" />
         <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
             <div class="flex flex-col md:gap-16 gap-4 md:flex-row py-2 px-4">
-                <div
+                <form
+                    @submit.prevent="handleAddToCart"
                     class="md:w-1/2 w-full order-2 flex flex-col gap-8 justify-between"
                 >
                     <div class="">
@@ -169,10 +175,15 @@ const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
                             </div>
                         </div>
                     </div>
-                    <button @click="handleAddToCart" class="btn w-full !p-3">
-                        Add to Cart
-                    </button>
-                </div>
+                    <button
+                    :class="
+                        cartForm.processing
+                            ? 'cursor-not-allowed bg-slate-500'
+                            : ' bg-green-500 hover:bg-green-600'
+                    "
+                    :disabled="cartForm.processing"
+                    class="btn w-full !p-3">Add to Cart</button>
+                </form>
 
                 <div class="md:w-1/2 w-full order-1 flex flex-col gap-24">
                     <ImageCarousel

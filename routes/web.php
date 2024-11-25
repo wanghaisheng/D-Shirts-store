@@ -27,7 +27,9 @@ Route::get('/t-shirt/{slug}', [CustomerTshirtsController::class, 'tshirtPage'])-
 
 Route::get('/cart', [CartController::class, 'cartPage'])->name('cart');
 Route::post('/cart', [CartController::class, 'addToCart'])->name('cart.add');
-Route::post('/cart/remove/{id}', [CartController::class, 'removeFromCart'])->name('cart.remove');
+Route::delete('/cart', [CartController::class, 'removeFromCart'])->name('cart.remove');
+Route::post('/cart/increaseQuantity', [CartController::class, 'increaseQuantity'])->name('cart.increaseQuantity');
+Route::post('/cart/decreaseQuantity', [CartController::class, 'decreaseQuantity'])->name('cart.decreaseQuantity');
 
 
 // ############################### Admin Routes ###############################

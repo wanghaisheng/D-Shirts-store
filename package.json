@@ -20,6 +20,7 @@
     },
     "dependencies": {
         "@primevue/themes": "^4.2.1",
+        "@stripe/stripe-js": "^5.2.0",
         "apexcharts": "^4.0.0",
         "primevue": "^4.2.1"
     }
