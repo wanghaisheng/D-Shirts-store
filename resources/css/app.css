@@ -1,6 +1,9 @@
+@import "./flags.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 @layer utilities {
     .smooth {

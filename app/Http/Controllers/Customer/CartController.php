@@ -9,41 +9,46 @@ use Stripe\Stripe;
 
 class CartController extends Controller
 {
+    // public function cartPage()
+    // {
+    //     Stripe::setApiKey(config('services.stripe.secret'));
+
+    //     $checkout = Session::create([
+    //         'payment_method_types' => ['card'],
+    //         'line_items' => [[
+    //             'price_data' => [
+    //                 'currency' => 'usd',
+    //                 'product_data' => [
+    //                     'name' => 'd-shirt',
+    //                 ],
+    //                 'unit_amount' => 100000,
+    //             ],
+    //             'quantity' => 1,
+    //         ]],
+    //         'mode' => 'payment',
+    //         'payment_method_options' => [
+    //             'card' => [
+    //                 'setup_future_usage' => 'on_session', // Prevent saving card
+    //             ],
+    //         ],
+    //         'return_url' => route('home'),
+    //         'ui_mode' => 'embedded',
+    //     ]);
+
+    //     $clientSecret = $checkout->client_secret ?? $this->retrieveClientSecret($checkout->id);
+
+    //     return inertia('Customer/CartPage', compact('clientSecret'));
+    // }
+    // private function retrieveClientSecret($sessionId){return Session::retrieve($sessionId)->client_secret;}
+
     public function cartPage()
     {
-        Stripe::setApiKey(config('services.stripe.secret'));
 
-        $checkout = Session::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => 'usd',
-                    'product_data' => [
-                        'name' => 'd-shirt',
-                    ],
-                    'unit_amount' => 100000,
-                ],
-                'quantity' => 1,
-            ]],
-            'mode' => 'payment',
-            'payment_method_options' => [
-                'card' => [
-                    'setup_future_usage' => 'on_session', // Prevent saving card
-                ],
-            ],
-            'return_url' => route('home'),
-            'ui_mode' => 'embedded',
-        ]);
-
-        $clientSecret = $checkout->client_secret ?? $this->retrieveClientSecret($checkout->id);
-
-        return inertia('Customer/CartPage', compact('clientSecret'));
+        return inertia('Customer/CartPage');
     }
 
-    private function retrieveClientSecret($sessionId)
-    {
-        return Session::retrieve($sessionId)->client_secret;
-    }
+
+
 
     public function addToCart(Request $request)
     {

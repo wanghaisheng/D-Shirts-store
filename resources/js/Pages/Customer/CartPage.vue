@@ -1,14 +1,19 @@
 <script setup>
 import { Head, Link, router } from "@inertiajs/vue3";
 import Customer from "@/Layouts/Customer.vue";
-import { computed, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import Remove from "@/Icons/Remove.vue";
 import { useTextHelpers } from "@/plugins/textHelpers";
 import Tshirt from "@/Icons/Tshirt.vue";
 import { useToast } from "primevue/usetoast";
 import Toast from "primevue/toast";
-import { loadStripe } from "@stripe/stripe-js";
+// import { loadStripe } from "@stripe/stripe-js";
+import InputText from "primevue/inputtext";
+import FloatLabel from "primevue/floatlabel";
+import Select from "primevue/select";
+import { countriesList } from "@/plugins/coutries";
+import {useForm} from "@inertiajs/vue3";
 
 defineOptions({ layout: Customer });
 
@@ -62,17 +67,32 @@ function decreaseQuantity(id) {
     router.post(route("cart.decreaseQuantity", { id: id }));
 }
 
-const stripe = loadStripe("pk_test_51QP7uUBHCvL4QLRBIzapKyIwaWtCnMOlutux3hjkxUYJhp2KpfPSOYqdR2K6cQMReEB6lzqOwq0jkpQ3cOEGRP7M00IUXChOal");
+const countries = countriesList();
 
-onMounted(() => {
-    stripe.then(async (stripe) => {
-        const checkout = await stripe?.initEmbeddedCheckout({
-            clientSecret: props.clientSecret,
-        });
-
-        checkout?.mount("#checkout-container");
-    });
+const checkoutForm = useForm({
+    fullname: "",
+    email:"",
+    phone:"",
+    address:"",
+    zipcode:"",
+    country:"",
 });
+
+function handleCheckoutForm (){
+    console.log(checkoutForm.country);
+}
+
+
+// const stripe = loadStripe("pk_test_51QP7uUBHCvL4QLRBIzapKyIwaWtCnMOlutux3hjkxUYJhp2KpfPSOYqdR2K6cQMReEB6lzqOwq0jkpQ3cOEGRP7M00IUXChOal");
+// onMounted(() => {
+//     stripe.then(async (stripe) => {
+//         const checkout = await stripe?.initEmbeddedCheckout({
+//             clientSecret: props.clientSecret,
+//         });
+
+//         checkout?.mount("#checkout-container");
+//     });
+// });
 </script>
 
 <template>
@@ -80,6 +100,7 @@ onMounted(() => {
         <Head title="Cart" />
         <Toast position="top-center" />
         <div class="max-w-7xl mx-auto pt-10 px-8 space-y-6">
+            <!-- Top Navigation -->
             <div class="flex justify-between items-center w-2/3 pe-2">
                 <h1 class="font-secondary font-semibold text-xl">
                     Shopping cart
@@ -95,8 +116,9 @@ onMounted(() => {
             </div>
             <div class="w-full h-[1px] bg-slate-500"></div>
 
-            <!-- Cart Items -->
+            <!-- Plain Cart -->
             <div v-if="cart.length > 0" class="flex gap-4">
+                <!-- Cart Items -->
                 <div
                     class="w-2/3 flex flex-col divide-y-2 divide-gray-500 h-[75vh] overflow-y-auto"
                 >
@@ -174,16 +196,118 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
-                <div
-                    class="w-1/3 bg-slate-50 border border-slate-300 rounded-xl shadow-xl min-h-[75vh] my-4"
+                <!-- Checkout Form -->
+                <form @submit.prevent="handleCheckoutForm"
+                    class="w-1/3 bg-slate-50 border border-slate-300 rounded-xl shadow-xl min-h-[75vh] my-4 p-4 space-y-4 divide-y-2 overflow-y-auto"
                 >
-                <div id="checkout-container">
-
-                </div>
-                    <p>Total Price: {{ cartTotal }}</p>
-                </div>
+                    <!-- Stripe -->
+                    <!-- <div id="checkout-container"></div> -->
+                    <!-- Contact Information -->
+                    <div class="flex flex-col gap-4 w-full">
+                        <p class="font-secondary text-xs font-bold text-slate-400">Contact Information</p>
+                        <FloatLabel variant="on" class="w-full">
+                            <InputText
+                                id="name"
+                                v-model="checkoutForm.fullname"
+                                class="w-full"
+                            />
+                            <label for="name">Full Name</label>
+                        </FloatLabel>
+                        <FloatLabel variant="on" class="w-full">
+                            <InputText
+                                id="email"
+                                v-model="checkoutForm.email"
+                                class="w-full"
+                            />
+                            <label for="email">Email</label>
+                        </FloatLabel>
+                        <FloatLabel variant="on" class="w-full">
+                            <InputText
+                                id="phone"
+                                v-model="checkoutForm.phone"
+                                class="w-full"
+                            />
+                            <label for="phone">Phone</label>
+                        </FloatLabel>
+                    </div>
+                    <!-- Shipping Address -->
+                    <div class="flex flex-col gap-4 w-full py-2">
+                        <p class="font-secondary text-xs font-bold text-slate-400">Shipping Address</p>
+                        <FloatLabel variant="on" class="w-full">
+                            <InputText
+                                id="address"
+                                v-model="checkoutForm.address"
+                                class="w-full"
+                            />
+                            <label for="address">Address</label>
+                        </FloatLabel>
+                        <div class="flex gap-2 w-full">
+                            <FloatLabel variant="on" class="w-1/2">
+                                <InputText
+                                    id="zip_code"
+                                    v-model="checkoutForm.zipcode"
+                                    class="w-full"
+                                />
+                                <label for="zip_code">Zip Code</label>
+                            </FloatLabel>
+                            <Select
+                                v-model="checkoutForm.country"
+                                :options="countries"
+                                filter
+                                optionLabel="Country"
+                                placeholder="Select a Country"
+                                class="w-full md:w-56"
+                            >
+                                <template #value="slotProps">
+                                    <div
+                                        v-if="slotProps.value"
+                                        class="flex items-center"
+                                    >
+                                        <img
+                                            :alt="slotProps.value.label"
+                                            src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png"
+                                            :class="`mr-2 flag flag-${slotProps.value.code.toLowerCase()}`"
+                                            style="width: 18px"
+                                        />
+                                        <div>{{ slotProps.value.name }}</div>
+                                    </div>
+                                    <span v-else>
+                                        {{ slotProps.placeholder }}
+                                    </span>
+                                </template>
+                                <template #option="slotProps">
+                                    <div class="flex items-center">
+                                        <img
+                                            :alt="slotProps.option.label"
+                                            src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png"
+                                            :class="`mr-2 flag flag-${slotProps.option.code.toLowerCase()}`"
+                                            style="width: 18px"
+                                        />
+                                        <div>{{ slotProps.option.name }}</div>
+                                    </div>
+                                </template>
+                            </Select>
+                        </div>
+                    </div>
+                    <!-- Total Price -->
+                    <div class="pt-2 flex justify-end items-end gap-2">
+                        <p class="font-secondary text-lg font-semibold text-slate-400">Total Price:</p>
+                        <p
+                            class="text-3xl font-main text-teal-700 bg-white p-2 border border-slate-300 rounded-md shadow-md"
+                        >
+                            ${{ parseFloat(cartTotal).toFixed(2) }}
+                        </p>
+                    </div>
+                    <!-- Checkout Button -->
+                    <div>
+                        <button class="btn w-full ">
+                            Proceed to checkout
+                        </button>
+                    </div>
+                </form>
             </div>
 
+            <!-- Empty Cart -->
             <div
                 v-else
                 class="h-[80vh] flex flex-col justify-center items-center"
