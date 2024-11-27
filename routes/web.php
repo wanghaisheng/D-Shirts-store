@@ -30,6 +30,7 @@ Route::post('/cart', [CartController::class, 'addToCart'])->name('cart.add');
 Route::delete('/cart', [CartController::class, 'removeFromCart'])->name('cart.remove');
 Route::post('/cart/increaseQuantity', [CartController::class, 'increaseQuantity'])->name('cart.increaseQuantity');
 Route::post('/cart/decreaseQuantity', [CartController::class, 'decreaseQuantity'])->name('cart.decreaseQuantity');
+Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 
 
 // ############################### Admin Routes ###############################

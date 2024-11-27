@@ -54,6 +54,7 @@ class HandleInertiaRequests extends Middleware
                             return $order->getTotalAmount();
                         })
                 ),
+                'cart' => $cart,
             ];
         }
         return [parent::share($request), 'cart' => $cart];

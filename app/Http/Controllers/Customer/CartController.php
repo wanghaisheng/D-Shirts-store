@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
+use Laravel\Cashier\Checkout;
+
 
 class CartController extends Controller
 {
-    // public function cartPage()
+    // public function checkout()
     // {
     //     Stripe::setApiKey(config('services.stripe.secret'));
 
@@ -31,19 +34,20 @@ class CartController extends Controller
     //                 'setup_future_usage' => 'on_session', // Prevent saving card
     //             ],
     //         ],
-    //         'return_url' => route('home'),
-    //         'ui_mode' => 'embedded',
+    //         'success_url' => route('home'),
+    //         'ui_mode' => 'hosted',
     //     ]);
+
+    //     dd($checkout->url);
 
     //     $clientSecret = $checkout->client_secret ?? $this->retrieveClientSecret($checkout->id);
 
     //     return inertia('Customer/CartPage', compact('clientSecret'));
     // }
-    // private function retrieveClientSecret($sessionId){return Session::retrieve($sessionId)->client_secret;}
+    private function retrieveClientSecret($sessionId){return Session::retrieve($sessionId)->client_secret;}
 
     public function cartPage()
     {
-
         return inertia('Customer/CartPage');
     }
 
@@ -129,6 +133,18 @@ class CartController extends Controller
         $cart_after = array_values($cart_after);
 
         session()->put('cart', $cart_after);
+
+        return redirect()->back();
+    }
+
+    public function checkout(Request $request)
+    {
+        $customer = Customer::find(1);
+
+        $checkout = $customer->checkout(['price_1QPm1oBHCvL4QLRBIHMap9C4' => 3], [
+            'success_url' => route('home'),
+            'cancel_url' => route('home'),
+        ]);
 
         return redirect()->back();
     }

@@ -79,7 +79,16 @@ const checkoutForm = useForm({
 });
 
 function handleCheckoutForm (){
-    console.log(checkoutForm.country);
+    checkoutForm.post(route('cart.checkout'), {
+        onSuccess: (response) => {
+            if (response.data.redirect_url) {
+                window.location.href = response.data.redirect_url;
+            }
+        },
+        onError: (error) => {
+            console.error('Checkout error:', error);
+        }
+    });
 }
 
 
