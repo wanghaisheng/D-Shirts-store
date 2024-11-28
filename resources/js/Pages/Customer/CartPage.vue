@@ -8,12 +8,11 @@ import { useTextHelpers } from "@/plugins/textHelpers";
 import Tshirt from "@/Icons/Tshirt.vue";
 import { useToast } from "primevue/usetoast";
 import Toast from "primevue/toast";
-// import { loadStripe } from "@stripe/stripe-js";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import Select from "primevue/select";
 import { countriesList } from "@/plugins/coutries";
-import {useForm} from "@inertiajs/vue3";
+import { useForm } from "@inertiajs/vue3";
 
 defineOptions({ layout: Customer });
 
@@ -71,43 +70,58 @@ const countries = countriesList();
 
 const checkoutForm = useForm({
     fullname: "",
-    email:"",
-    phone:"",
-    address:"",
-    zipcode:"",
-    country:"",
+    email: "",
+    phone: "",
+    address: "",
+    zipcode: "",
+    country: "",
 });
 
-function handleCheckoutForm (){
-    checkoutForm.post(route('cart.checkout'), {
-        onSuccess: (response) => {
-            if (response.data.redirect_url) {
-                window.location.href = response.data.redirect_url;
+const checkProcessing = ref(false);
+function handleCheckoutForm() {
+    checkProcessing.value = true; // Disable the button
+    axios
+        .post(route("cart.checkout"), checkoutForm, {
+            headers: {
+                "X-Inertia": false,
+            },
+        })
+        .then((response) => {
+            // window.location.href = response.data.url; // Redirect to Stripe Checkout
+            console.log("ggod");
+        })
+        .catch((error) => {
+            if (error.response && error.response.status === 422) {
+                // Handle validation errors
+                const errors = error.response.data.errors;
+                const firstError = Object.values(errors)[0][0]; // Get the first error message
+                toast.add({
+                    severity: "error",
+                    summary: "Validation Error",
+                    detail: firstError,
+                    life: 3000,
+                });
+            } else {
+                // Handle other errors
+                toast.add({
+                    severity: "error",
+                    summary: "Error",
+                    detail: "An error occurred",
+                    life: 3000,
+                });
             }
-        },
-        onError: (error) => {
-            console.error('Checkout error:', error);
-        }
-    });
+        })
+        .finally(() => {
+            checkProcessing.value = false; // Re-enable the button after the request completes
+        });
 }
-
-
-// const stripe = loadStripe("pk_test_51QP7uUBHCvL4QLRBIzapKyIwaWtCnMOlutux3hjkxUYJhp2KpfPSOYqdR2K6cQMReEB6lzqOwq0jkpQ3cOEGRP7M00IUXChOal");
-// onMounted(() => {
-//     stripe.then(async (stripe) => {
-//         const checkout = await stripe?.initEmbeddedCheckout({
-//             clientSecret: props.clientSecret,
-//         });
-
-//         checkout?.mount("#checkout-container");
-//     });
-// });
 </script>
 
 <template>
     <div class="">
         <Head title="Cart" />
         <Toast position="top-center" />
+        <!-- <p>csrf_token: {{ csrf_token}}</p> -->
         <div class="max-w-7xl mx-auto pt-10 px-8 space-y-6">
             <!-- Top Navigation -->
             <div class="flex justify-between items-center w-2/3 pe-2">
@@ -206,14 +220,17 @@ function handleCheckoutForm (){
                     </div>
                 </div>
                 <!-- Checkout Form -->
-                <form @submit.prevent="handleCheckoutForm"
+                <form
+                    @submit.prevent="handleCheckoutForm()"
                     class="w-1/3 bg-slate-50 border border-slate-300 rounded-xl shadow-xl min-h-[75vh] my-4 p-4 space-y-4 divide-y-2 overflow-y-auto"
                 >
-                    <!-- Stripe -->
-                    <!-- <div id="checkout-container"></div> -->
                     <!-- Contact Information -->
                     <div class="flex flex-col gap-4 w-full">
-                        <p class="font-secondary text-xs font-bold text-slate-400">Contact Information</p>
+                        <p
+                            class="font-secondary text-xs font-bold text-slate-400"
+                        >
+                            Contact Information
+                        </p>
                         <FloatLabel variant="on" class="w-full">
                             <InputText
                                 id="name"
@@ -241,7 +258,11 @@ function handleCheckoutForm (){
                     </div>
                     <!-- Shipping Address -->
                     <div class="flex flex-col gap-4 w-full py-2">
-                        <p class="font-secondary text-xs font-bold text-slate-400">Shipping Address</p>
+                        <p
+                            class="font-secondary text-xs font-bold text-slate-400"
+                        >
+                            Shipping Address
+                        </p>
                         <FloatLabel variant="on" class="w-full">
                             <InputText
                                 id="address"
@@ -300,7 +321,11 @@ function handleCheckoutForm (){
                     </div>
                     <!-- Total Price -->
                     <div class="pt-2 flex justify-end items-end gap-2">
-                        <p class="font-secondary text-lg font-semibold text-slate-400">Total Price:</p>
+                        <p
+                            class="font-secondary text-lg font-semibold text-slate-400"
+                        >
+                            Total Price:
+                        </p>
                         <p
                             class="text-3xl font-main text-teal-700 bg-white p-2 border border-slate-300 rounded-md shadow-md"
                         >
@@ -309,8 +334,18 @@ function handleCheckoutForm (){
                     </div>
                     <!-- Checkout Button -->
                     <div>
-                        <button class="btn w-full ">
-                            Proceed to checkout
+                        <!-- <button class="btn w-full">Proceed to checkout</button> -->
+                        <button
+                            class="btn w-full"
+                            :class="
+                                checkProcessing
+                                    ? 'cursor-wait bg-green-300'
+                                    : 'bg-green-500'
+                            "
+                            :disabled="checkProcessing"
+                        >
+                            <span v-if="checkProcessing">...</span>
+                            <span v-else>Proceed to checkout</span>
                         </button>
                     </div>
                 </form>

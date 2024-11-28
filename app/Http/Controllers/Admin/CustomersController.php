@@ -14,10 +14,10 @@ class CustomersController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%')
                 ->orWhere('email', 'like', '%' . $request->search . '%')
                 ->orWhere('country', 'like', '%' . $request->search . '%')
-                ->orWhere('city', 'like', '%' . $request->search . '%')
+                ->orWhere('zipcode', 'like', '%' . $request->search . '%')
                 ->orWhere('address', 'like', '%' . $request->search . '%');
         })
-        ->select('id', 'name', 'email', 'phone', 'country', 'city', 'address')
+        ->select('id', 'name', 'email', 'phone', 'country', 'zipcode', 'address')
         ->paginate(10)
         ->withQueryString()
         ->through(function ($customer) {

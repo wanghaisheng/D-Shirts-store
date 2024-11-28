@@ -18,6 +18,8 @@ return new class extends Migration
             $table->integer('total_tshirts')->nullable();
             $table->float('total_amount')->nullable();
             $table->string('tracking_number')->nullable();
+            $table->enum('payment_status', ['unpaid', 'paid'])->default('unpaid');
+            $table->string('payment_id')->nullable();
             $table->timestamps();
         });
     }

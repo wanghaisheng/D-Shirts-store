@@ -24,7 +24,7 @@ class CustomerFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             'phone' => $this->faker->phoneNumber(),
             'country' => $this->faker->country(),
-            'city' => $this->faker->city(),
+            'zipcode' => $this->faker->randomNumber(6),
             'address' => $this->faker->address(),
         ];
     }

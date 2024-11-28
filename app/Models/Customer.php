@@ -5,13 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Laravel\Cashier\Billable;
 
 class Customer extends Model
 {
-    use HasFactory, Billable;
+    use HasFactory;
     
-    protected $fillable = ['name', 'email', 'phone', 'country', 'city', 'address'];
+    protected $fillable = ['name', 'email', 'phone', 'country', 'address', 'zipcode'];
 
     public function orders()
     {

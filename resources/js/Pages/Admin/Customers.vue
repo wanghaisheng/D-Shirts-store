@@ -151,7 +151,7 @@ const textHelpers = useTextHelpers();
                                     class="font-bold"
                                     v-html="
                                         textHelpers.highlightText(
-                                            customer.city,
+                                            customer.zipcode,
                                             debouncedSearch
                                         )
                                     "
