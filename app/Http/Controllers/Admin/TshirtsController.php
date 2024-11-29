@@ -21,6 +21,7 @@ class TshirtsController extends Controller
                 return [
                     'id' => $tshirt->id,
                     'title' => $tshirt->title,
+                    'slug' => $tshirt->slug,
                     'description' => $tshirt->description,
                     'price' => $tshirt->price,
                     'listed' => $tshirt->listed,

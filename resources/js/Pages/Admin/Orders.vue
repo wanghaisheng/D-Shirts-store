@@ -380,7 +380,7 @@ watch(selectedFilter, (newFilter) => {
                                     </p>
                                 </div>
                             </td>
-                            <td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle">
                                 <PaymentStatus :type=" order.payment_status" />
                             </td>
                             <td

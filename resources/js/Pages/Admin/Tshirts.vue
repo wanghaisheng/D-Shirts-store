@@ -526,7 +526,8 @@ const confirmDeleteTshirt = (tshirtId) => {
                         <ListingStatus :is-listed="!!tshirt.listed" />
                     </p>
                     <a
-                        href="#"
+                        :href="`/t-shirt/${tshirt.slug}`"
+                        target="_blank"
                         class="absolute top-2 right-2 text-sm text-red z-10 flex items-center gap-1"
                     >
                         <Target
