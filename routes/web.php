@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\RevenueController;
 use App\Http\Controllers\Admin\TshirtsController;
 use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\HomePageController;
+use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Customer\TshirtsController as CustomerTshirtsController;
 
 // ################################ Customer Routes ################################
@@ -30,8 +31,11 @@ Route::post('/cart', [CartController::class, 'addToCart'])->name('cart.add');
 Route::delete('/cart', [CartController::class, 'removeFromCart'])->name('cart.remove');
 Route::post('/cart/increaseQuantity', [CartController::class, 'increaseQuantity'])->name('cart.increaseQuantity');
 Route::post('/cart/decreaseQuantity', [CartController::class, 'decreaseQuantity'])->name('cart.decreaseQuantity');
-Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 
+Route::post('/cart/checkout', [PaymentController::class, 'checkout'])->name('cart.checkout');
+Route::get('/thank-you', [PaymentController::class, 'thankYouPage'])->name('thankYou');
+Route::get('/failed-payment', [PaymentController::class, 'failedPaymentPage'])->name('failedPayment');
+Route::post('/webhook', [PaymentController::class, 'webhook'])->name('webhook');
 
 // ############################### Admin Routes ###############################
 Route::prefix('admin')->middleware('auth')->group(function () {

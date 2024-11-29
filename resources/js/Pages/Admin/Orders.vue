@@ -8,6 +8,7 @@ import CopyText from "@/Components/CopyText.vue";
 import EditOrder from "@/Components/EditOrder.vue";
 import Popover from "primevue/popover";
 import Copy from "@/Icons/Copy.vue";
+import PaymentStatus from "@/Components/PaymentStatus.vue";
 
 defineOptions({ layout: Admin });
 
@@ -42,7 +43,7 @@ const toggleAddressPopOver = (event, customer) => {
     const orderDetails = {
         id: customer.id,
         country: customer.country,
-        city: customer.city,
+        zipcode: customer.zipcode,
         address: customer.address,
     };
 
@@ -57,7 +58,7 @@ const toggleAddressPopOver = (event, customer) => {
 };
 const copyAddress = () => {
     op.value.hide();
-    const fullAddress = `${selectedOrder.value.country}, ${selectedOrder.value.city}, ${selectedOrder.value.address}`;
+    const fullAddress = `${selectedOrder.value.country}, ${selectedOrder.value.zipcode}, ${selectedOrder.value.address}`;
     navigator.clipboard.writeText(fullAddress);
 };
 
@@ -78,7 +79,7 @@ watch(selectedFilter, (newFilter) => {
         <!-- Address Popover -->
         <Popover ref="op">
             <div v-if="selectedOrder">
-                <div class="flex items-center justify-start gap-1 relative">
+                <div class="flex items-center justify-start gap-1 relative pe-8">
                     <Copy
                         @click="copyAddress"
                         class="w-5 h-5 absolute top-0 right-0 text-slate-600 cursor-pointer hover:h-[1.3rem] hover:w-[1.3rem] smooth"
@@ -87,7 +88,7 @@ watch(selectedFilter, (newFilter) => {
                         {{ selectedOrder.country }}
                     </p>
                     <p>,</p>
-                    <p class="font-bold">{{ selectedOrder.city }}</p>
+                    <p class="">{{ selectedOrder.zipcode }}</p>
                 </div>
                 <p class="text-sm">
                     {{ textHelper.limitText(selectedOrder.address, 50) }}
@@ -240,13 +241,19 @@ watch(selectedFilter, (newFilter) => {
                             scope="col"
                             class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
                         >
-                            <p class="ms-2">Status</p>
+                            <p class="ms-2">Order Status</p>
                         </th>
                         <th
                             scope="col"
                             class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase text-nowrap"
                         >
                             Tracking Number
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"
+                        >
+                            <p class="ms-2">Payment Status</p>
                         </th>
                         <th
                             scope="col"
@@ -273,9 +280,9 @@ watch(selectedFilter, (newFilter) => {
                             @click="toggleRow(order.id)"
                             class="cursor-pointer"
                             :class="{
-                                ' bg-gray-100 hover:bg-gray-100':
+                                ' bg-gray-200 hover:bg-gray-300':
                                     expandedRows.has(order.id),
-                                'hover:bg-gray-50 cursor-pointer ':
+                                ' hover:bg-gray-50 cursor-pointer ':
                                     !expandedRows.has(order.id),
                             }"
                         >
@@ -373,6 +380,9 @@ watch(selectedFilter, (newFilter) => {
                                     </p>
                                 </div>
                             </td>
+                            <td>
+                                <PaymentStatus :type=" order.payment_status" />
+                            </td>
                             <td
                                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 align-middle"
                             >
@@ -394,7 +404,7 @@ watch(selectedFilter, (newFilter) => {
 
                         <!-- Expanded T-shirts Details Row -->
                         <tr v-if="expandedRows.has(order.id)">
-                            <td colspan="9" class="bg-slate-200 py-2 px-3">
+                            <td colspan="10" class="bg-slate-200 py-2 px-3">
                                 <div class="grid grid-cols-4 gap-3">
                                     <div
                                         v-for="tshirt in order.tshirts"
@@ -424,6 +434,7 @@ watch(selectedFilter, (newFilter) => {
                                                         )
                                                     }}
                                                 </p>
+                                                <p class="my-2">size: <span class="font-semibold bg-white py-1 px-2 rounded  shadow-md border border-slate-600">{{ tshirt.pivot.size }}</span></p>
                                                 <div
                                                     class="flex justify-between items-center gap-4 mt-1 w-full"
                                                 >

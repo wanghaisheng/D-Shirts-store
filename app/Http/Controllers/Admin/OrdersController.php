@@ -13,7 +13,7 @@ class OrdersController extends Controller
         $orders = Order::when($request->filter && $request->filter != 'all', function ($query) use ($request) {
             $query->where('status', $request->filter);
         })
-        ->select('id', 'customer_id', 'status', 'tracking_number', 'created_at')
+        ->select('id', 'customer_id', 'status', 'tracking_number', 'payment_status', 'created_at')
             ->orderBy('created_at', 'desc')
             ->with('customer')
             ->with([

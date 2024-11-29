@@ -16,7 +16,7 @@ class Order extends Model
     public function tshirts()
     {
         return $this->belongsToMany(Tshirt::class)
-            ->withPivot('quantity', 'price')
+            ->withPivot('quantity', 'price', 'size')
             ->withTimestamps();
     }
 
