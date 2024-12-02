@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Mail\OrderProcessing;
 use App\Models\Customer;
 use App\Models\Order;
 use Exception;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -125,12 +126,19 @@ class PaymentController extends Controller
 
             $order = Order::where('payment_id', $checkoutSessionId)->firstOrFail();
 
-            if(!$order) {
+            if (!$order) {
                 return throw new NotFoundHttpException();
             }
 
-            $order->payment_status = PaymentStatus::PAID;
-            $order->save();
+            // Use atomic update to prevent double updates
+            $updated = Order::where('id', $order->id)
+                ->where('payment_status', '!=', PaymentStatus::PAID)
+                ->update(['payment_status' => PaymentStatus::PAID]);
+
+            if ($updated) {
+                Mail::to($order->customer->email)->send(new OrderProcessing($order->customer));
+                Log::info('Email send from redirection');
+            }
 
 
             session()->forget('cart');
@@ -190,8 +198,16 @@ class PaymentController extends Controller
                     return response('', 400);
                 }
 
-                $order->payment_status = PaymentStatus::PAID;
-                $order->save();
+                // Use atomic update to prevent double updates
+                $updated = Order::where('id', $order->id)
+                ->where('payment_status', '!=', PaymentStatus::PAID)
+                ->update(['payment_status' => PaymentStatus::PAID]);
+
+                if ($updated) {
+                    Mail::to($order->customer->email)->send(new OrderProcessing($order->customer));
+                    Log::info('Email send from webhook');
+                }
+
 
                 session()->forget('cart');
 

@@ -88,7 +88,6 @@ function handleCheckoutForm() {
         })
         .then((response) => {
             window.location.href = response.data.url; // Redirect to Stripe Checkout
-            // console.log("ggod");
         })
         .catch((error) => {
             if (error.response && error.response.status === 422) {
