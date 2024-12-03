@@ -67,6 +67,7 @@ function decreaseQuantity(id) {
 }
 
 const countries = countriesList();
+const selectedCountry = ref();
 
 const checkoutForm = useForm({
     fullname: "",
@@ -80,6 +81,7 @@ const checkoutForm = useForm({
 const checkProcessing = ref(false);
 function handleCheckoutForm() {
     checkProcessing.value = true; // Disable the button
+    checkoutForm.country = selectedCountry.value;
     axios
         .post(route("cart.checkout"), checkoutForm, {
             headers: {
@@ -280,10 +282,10 @@ function handleCheckoutForm() {
                                 <label for="zip_code">Zip Code</label>
                             </FloatLabel>
                             <Select
-                                v-model="checkoutForm.country"
+                                v-model="selectedCountry"
                                 :options="countries"
                                 filter
-                                optionLabel="Country"
+                                optionLabel="name"
                                 placeholder="Select a Country"
                                 class="w-full md:w-56"
                             >

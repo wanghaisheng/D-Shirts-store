@@ -148,7 +148,7 @@ class PaymentController extends Controller
             return inertia('Customer/ThankYouPage');
         } catch (Exception $e) {
             Log::error('Checkout error: ' . $e->getMessage());
-            return redirect()->route('failedPayment');
+            return redirect()->route('home');
         }
     }
 

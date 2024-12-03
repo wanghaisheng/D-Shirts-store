@@ -71,15 +71,3 @@ Route::middleware('auth')->group(function () {
 
 // ################################ Auth Routes ################################
 require __DIR__ . '/auth.php';
-
-
-Route::get('/send', function () {
-    // $customer = Customer::find(1);
-    // Mail::to('contact.galdi@gmail.com')->send(new OrderProcessing($customer));
-    // Log::info('Order Processing Email Sent');
-    // return 'Email Sent';
-    // return new OrderProcessing($customer);
-    $order = Order::with('customer', 'tshirts')->find(1);
-    
-    return new NewOrder($order);
-});
