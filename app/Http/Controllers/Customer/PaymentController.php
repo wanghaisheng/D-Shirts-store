@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Mail\NewOrder;
 use App\Mail\OrderProcessing;
 use App\Models\Customer;
 use App\Models\Order;
@@ -137,7 +138,8 @@ class PaymentController extends Controller
 
             if ($updated) {
                 Mail::to($order->customer->email)->send(new OrderProcessing($order->customer));
-                Log::info('Email send from redirection');
+                Mail::to(env('ADMIN_EMAIL'))->send(new NewOrder($order));
+                Log::info('Emails send from redirection');
             }
 
 
@@ -205,7 +207,8 @@ class PaymentController extends Controller
 
                 if ($updated) {
                     Mail::to($order->customer->email)->send(new OrderProcessing($order->customer));
-                    Log::info('Email send from webhook');
+                    Mail::to(env('ADMIN_EMAIL'))->send(new NewOrder($order));
+                    Log::info('Emails send from webhook');
                 }
 
 

@@ -11,8 +11,10 @@ use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\HomePageController;
 use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Customer\TshirtsController as CustomerTshirtsController;
+use App\Mail\NewOrder;
 use App\Mail\OrderProcessing;
 use App\Models\Customer;
+use App\Models\Order;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -72,9 +74,12 @@ require __DIR__ . '/auth.php';
 
 
 Route::get('/send', function () {
-    $customer = Customer::find(1);
+    // $customer = Customer::find(1);
     // Mail::to('contact.galdi@gmail.com')->send(new OrderProcessing($customer));
     // Log::info('Order Processing Email Sent');
     // return 'Email Sent';
-    return new OrderProcessing($customer);
+    // return new OrderProcessing($customer);
+    $order = Order::with('customer', 'tshirts')->find(1);
+    
+    return new NewOrder($order);
 });
