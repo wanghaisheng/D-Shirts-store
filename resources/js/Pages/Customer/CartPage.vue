@@ -125,7 +125,9 @@ function handleCheckoutForm() {
         <!-- <p>csrf_token: {{ csrf_token}}</p> -->
         <div class="max-w-7xl mx-auto pt-10 px-8 space-y-6">
             <!-- Top Navigation -->
-            <div class="flex justify-between items-center w-2/3 pe-2">
+            <div
+                class="flex justify-between items-center md:w-2/3 w-full pe-2 md:pt-0 pt-4"
+            >
                 <h1 class="font-secondary font-semibold text-xl">
                     Shopping cart
                 </h1>
@@ -141,15 +143,102 @@ function handleCheckoutForm() {
             <div class="w-full h-[1px] bg-slate-500"></div>
 
             <!-- Plain Cart -->
-            <div v-if="cart.length > 0" class="flex gap-4">
+            <div v-if="cart.length > 0" class="flex md:flex-row flex-col gap-4">
                 <!-- Cart Items -->
                 <div
-                    class="w-2/3 flex flex-col divide-y-2 divide-gray-500 h-[75vh] overflow-y-auto"
+                    class="md:w-2/3 w-full flex flex-col divide-y-2 md:divide-gray-500 h-[75vh] overflow-y-auto"
                 >
+                    <!-- Mobile Cart Items -->
                     <div
                         v-for="item in cart"
                         :key="item.tshirt_id"
-                        class="relative flex items-center h-40 gap-3"
+                        class="md:hidden relative flex md:flex-row flex-col items-center gap-3 bg-gray-100 p-2 rounded-md shadow-md mb-2"
+                    >
+                        <div class="flex gap-2">
+                            <div class="w-1/2">
+                                <img
+                                    :src="item.tshirt_image"
+                                    alt=""
+                                    class="w-full object-cover"
+                                />
+                            </div>
+                            <div class="space-y-3 pt-4">
+                                <p>
+                                    Size:<span
+                                        class="ms-2 font-semibold bg-gray-100 py-1 px-2 rounded-md shadow-md"
+                                        >{{ item.size }}</span
+                                    >
+                                </p>
+                                <p>
+                                    Price:<span
+                                        class="ms-2 font-semibold bg-gray-100 py-1 px-2 rounded-md shadow-md"
+                                    >
+                                        ${{ item.tshirt_price }}</span
+                                    >
+                                </p>
+                                <div class="text-center space-y-1 pt-4">
+                                    <div
+                                        class="flex justify-center items-center gap-2"
+                                    >
+                                        <button
+                                            @click="
+                                                decreaseQuantity(item.item_id)
+                                            "
+                                            :disabled="item.quantity == 1"
+                                            class="bg-slate-400 hover:bg-slate-500 text-white w-8 h-8 rounded-full disabled:cursor-not-allowed disabled:bg-slate-300"
+                                        >
+                                            -
+                                        </button>
+                                        <p
+                                            class="border border-slate-400 py-2 px-4 rounded-md bg-white"
+                                        >
+                                            {{ item.quantity }}
+                                        </p>
+                                        <button
+                                            @click="
+                                                increaseQuantity(item.item_id)
+                                            "
+                                            :disabled="item.quantity == 10"
+                                            class="bg-slate-400 hover:bg-slate-500 text-white w-8 h-8 rounded-full disabled:cursor-not-allowed disabled:bg-slate-300"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="w-full flex justify-around items-center gap-2"
+                        >
+                            <p class="font-main font-semibold">
+                                {{
+                                    textHelper.limitText(item.tshirt_title, 25)
+                                }}
+                            </p>
+                            <div
+                                class="w-3/12 flex flex-col justify-center items-center gap-1"
+                            >
+                                <p>Subtotal:</p>
+                                <p class="text-2xl font-main text-teal-600">
+                                    ${{ item.tshirt_price * item.quantity }}
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            @click="removeItem(item.item_id)"
+                            class="absolute right-3 top-3"
+                        >
+                            <Remove
+                                class="w-5 h-5 text-slate-700 hover:text-red-800 cursor-pointer"
+                            />
+                        </div>
+                    </div>
+                    <!-- Desktop Cart Items -->
+                    <div
+                        v-for="item in cart"
+                        :key="item.tshirt_id"
+                        class="hidden relative md:flex items-center h-40 gap-3"
                     >
                         <div class="w-2/12">
                             <img
@@ -223,7 +312,7 @@ function handleCheckoutForm() {
                 <!-- Checkout Form -->
                 <form
                     @submit.prevent="handleCheckoutForm()"
-                    class="w-1/3 bg-slate-50 border border-slate-300 rounded-xl shadow-xl min-h-[75vh] my-4 p-4 space-y-4 divide-y-2 overflow-y-auto"
+                    class="md:w-1/3 w-full bg-slate-50 border border-slate-300 rounded-xl shadow-xl min-h-[75vh] my-4 p-4 space-y-4 divide-y-2 overflow-y-auto"
                 >
                     <!-- Contact Information -->
                     <div class="flex flex-col gap-4 w-full">
@@ -287,7 +376,7 @@ function handleCheckoutForm() {
                                 filter
                                 optionLabel="name"
                                 placeholder="Select a Country"
-                                class="w-full md:w-56"
+                                class="w-1/2 md:w-56"
                             >
                                 <template #value="slotProps">
                                     <div

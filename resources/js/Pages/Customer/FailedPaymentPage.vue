@@ -46,15 +46,15 @@ import { Head, Link } from "@inertiajs/vue3";
                 </p>
 
                 <!-- Action Buttons -->
-                <div class="flex space-x-4 justify-center">
+                <div class="flex md:flex-row flex-col md:space-x-4 space-y-4 md:space-y-0 space-x-0 justify-center">
                     <Link
                         :href="route('home')"
-                        class="btn w-44 "
+                        class="btn md:w-44 w-full "
                         >Back To Shop</Link
                     >
                     <Link
                         :href="route('home')"
-                        class="btn w-44 "
+                        class="btn md:w-44 w-full "
                         >Contact Support</Link
                     >
                 </div>

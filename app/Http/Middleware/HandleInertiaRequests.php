@@ -57,6 +57,9 @@ class HandleInertiaRequests extends Middleware
                 'cart' => $cart,
             ];
         }
-        return [parent::share($request), 'cart' => $cart];
+        return [
+            parent::share($request),
+            'cart' => fn() => session('cart', []),
+        ];
     }
 }

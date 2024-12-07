@@ -1,6 +1,13 @@
 <script setup>
 import Footer from "@/Components/HomePage/Footer.vue";
 import Cart from "@/Components/Cart.vue";
+import { router } from '@inertiajs/vue3';
+
+router.on('navigate', () => {
+    // Reload only the cart prop
+    router.reload({ only: ['cart'] });
+});
+
 </script>
 
 <template>
