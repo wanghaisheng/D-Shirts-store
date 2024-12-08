@@ -11,40 +11,38 @@ class OrderSeeder extends Seeder
 {
     public function run(): void
     {
-        // Fetch all customers and T-shirts
         $customers = Customer::all();
         $tshirts = Tshirt::all();
+        $faker = \Faker\Factory::create();
 
         for ($i = 1; $i <= 88; $i++) {
-            // Select a random customer for each order
             $customer = $customers->random();
-
-            // Generate a random number of items (1 to 5 T-shirts per order)
             $numberOfItems = rand(1, 3);
             $selectedTshirts = $tshirts->random($numberOfItems);
-
-            // Determine the time period for this order
             $date = $this->getRandomDate();
 
-            // Create the order with a generated tracking number and random status
+            // Generate order and payment status together
+            $orderStatusData = $this->generateOrderStatusAndPayment();
+
             $order = Order::create([
                 'customer_id' => $customer->id,
-                'status' => $this->getRandomStatus(),
-                'tracking_number' => rand(10000000, 99999999), // 8-digit tracking number
+                'status' => $orderStatusData['status'],
+                'tracking_number' => rand(10000000, 99999999),
+                'payment_status' => $orderStatusData['payment_status'],
+                'payment_id' => $orderStatusData['payment_id'],
                 'created_at' => $date,
                 'updated_at' => $date,
             ]);
 
-            // Attach the selected T-shirts to the order
             foreach ($selectedTshirts as $tshirt) {
                 $order->tshirts()->attach($tshirt->id, [
+                    'size' => $faker->randomElement(['S', 'M', 'L', 'XL']),
                     'quantity' => rand(1, 2),
                     'price' => $tshirt->price,
                     'created_at' => $date,
                 ]);
             }
 
-            // Update order totals
             $order->total_tshirts = $order->getTotalTshirts();
             $order->total_amount = $order->getTotalAmount();
             $order->save();
@@ -75,9 +73,45 @@ class OrderSeeder extends Seeder
     /**
      * Get a random order status.
      */
-    private function getRandomStatus(): string
+    private function generateOrderStatusAndPayment(): array
     {
-        $statuses = ['pending', 'processing', 'delivered', 'cancelled'];
-        return $statuses[array_rand($statuses)];
+        // Define logical combinations of order and payment statuses
+        $statusCombinations = [
+            // Pending orders can be paid or unpaid
+            'pending' => [
+                ['payment_status' => 'unpaid', 'payment_id' => null],
+                ['payment_status' => 'paid', 'payment_id' => $this->generatePaymentId()]
+            ],
+            // Processing orders should typically be paid
+            'processing' => [
+                ['payment_status' => 'paid', 'payment_id' => $this->generatePaymentId()]
+            ],
+            // Delivered orders must be paid
+            'delivered' => [
+                ['payment_status' => 'paid', 'payment_id' => $this->generatePaymentId()]
+            ],
+            // Cancelled orders can be paid or unpaid
+            'cancelled' => [
+                ['payment_status' => 'unpaid', 'payment_id' => null],
+                ['payment_status' => 'paid', 'payment_id' => $this->generatePaymentId()]
+            ]
+        ];
+
+        // Select a random order status
+        $status = array_rand($statusCombinations);
+
+        // Select a random payment configuration for that status
+        $paymentConfig = $statusCombinations[$status][array_rand($statusCombinations[$status])];
+
+        return [
+            'status' => $status,
+            'payment_status' => $paymentConfig['payment_status'],
+            'payment_id' => $paymentConfig['payment_id']
+        ];
+    }
+    private function generatePaymentId(): ?string
+    {
+        // Only generate payment ID if the order is paid
+        return 'cs_test_' . str()->random(24);
     }
 }

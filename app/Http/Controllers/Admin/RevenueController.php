@@ -22,6 +22,7 @@ class RevenueController extends Controller
             DB::raw('SUM(SUM(total_amount)) OVER (ORDER BY DATE_FORMAT(created_at, "%Y-%m")) as cumulative_income')
         )
             ->where('status', '!=', 'cancelled')
+            ->where('payment_status', '=', 'paid')
             ->groupBy('date');
 
         // Modified query for daily grouping
@@ -33,6 +34,7 @@ class RevenueController extends Controller
             DB::raw('SUM(SUM(total_amount)) OVER (ORDER BY DATE(created_at)) as cumulative_income')
         )
             ->where('status', '!=', 'cancelled')
+            ->where('payment_status', '=', 'paid')
             ->groupBy('date');
 
         return inertia('Admin/Revenue', [

@@ -6,7 +6,9 @@ use App\Helpers\TitleToFolderName;
 use App\Http\Controllers\Controller;
 use App\Models\ShirtImage;
 use App\Models\Tshirt;
+use Error;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -15,8 +17,8 @@ class TshirtsController extends Controller
     public function index()
     {
         $tshirts = Tshirt::with('images')
-        ->orderBy('created_at', 'desc')
-        ->paginate(9) 
+            ->orderBy('created_at', 'desc')
+            ->paginate(9)
             ->through(function ($tshirt) {
                 return [
                     'id' => $tshirt->id,
@@ -33,10 +35,10 @@ class TshirtsController extends Controller
                 ];
             });
 
-            // test empty state without deleting t-shirts
-            // $tshirts = [
-            //     'data' => [],
-            // ];
+        // test empty state without deleting t-shirts
+        // $tshirts = [
+        //     'data' => [],
+        // ];
 
         return inertia('Admin/Tshirts', ['tshirts' => $tshirts]);
     }
@@ -44,6 +46,11 @@ class TshirtsController extends Controller
 
     public function store(Request $request)
     {
+        if (! Gate::allows('super_admin')) {
+            return back()->withErrors([
+                'authorization' => config('messages.guest_admin_restriction'),
+            ]);
+        }
         // Validate request data
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
@@ -68,7 +75,7 @@ class TshirtsController extends Controller
         $tshirt->images_folder_name = $folderName;
         $tshirt->save();
 
-        
+
 
         // Array of images with their corresponding order
         $images = [
@@ -106,6 +113,13 @@ class TshirtsController extends Controller
 
     public function update(Request $request, Tshirt $tshirt)
     {
+
+        if (! Gate::allows('super_admin')) {
+            return back()->withErrors([
+                'authorization' => config('messages.guest_admin_restriction'),
+            ]);
+        }
+
         // Validate request data
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
@@ -174,7 +188,8 @@ class TshirtsController extends Controller
                     ['tshirt_id' => $tshirt->id, 'order' => $order],
                     ['url' => '/storage/' . $newImagePath]
                 );
-            } elseif ($request->input($imageKey) === null
+            } elseif (
+                $request->input($imageKey) === null
             ) {
                 // If the field is null, remove from storage and database
                 if ($currentImagePath) {
@@ -192,6 +207,11 @@ class TshirtsController extends Controller
 
     public function destroy(Tshirt $tshirt)
     {
+        if (! Gate::allows('super_admin')) {
+            return back()->withErrors([
+                'authorization' => config('messages.guest_admin_restriction'),
+            ]);
+        }
         // Delete the images
         $tshirt->images()->delete();
 

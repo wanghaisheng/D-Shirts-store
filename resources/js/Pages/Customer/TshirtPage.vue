@@ -42,6 +42,16 @@ const cartForm = useForm({
 });
 
 function handleAddToCart() {
+    // check if user is logged in
+    if (page.props.auth) {
+        toast.add({
+            severity: "warn",
+            summary: "Warning",
+            detail: "You can't order as Admin, please logout first",
+            life: 3000,
+        });
+        return;
+    }
     if (cartForm.size === "") {
         toast.add({
             severity: "error",
@@ -61,6 +71,7 @@ function handleAddToCart() {
                     detail: "Added to cart successfully",
                     life: 3000,
                 });
+                console.log('success');
             } else {
                 toast.add({
                     severity: "warn",
@@ -68,6 +79,7 @@ function handleAddToCart() {
                     detail: page.props[0].errors.cart || "An error occurred",
                     life: 3000,
                 });
+                console.log('error');
             }
         },
     });

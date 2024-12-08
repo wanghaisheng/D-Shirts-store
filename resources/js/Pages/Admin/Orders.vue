@@ -123,7 +123,7 @@ watch(selectedFilter, (newFilter) => {
                     class="cursor-pointer p-1 rounded-lg border-2 border-slate-500"
                     :class="
                         selectedFilter === 'pending'
-                            ? 'bg-emerald-500 text-white'
+                            ? 'bg-yellow-400 text-white'
                             : 'bg-white text-slate-600 hover:bg-slate-100'
                     "
                     for="pending"
@@ -143,7 +143,7 @@ watch(selectedFilter, (newFilter) => {
                     class="cursor-pointer p-1 rounded-lg border-2 border-slate-500"
                     :class="
                         selectedFilter === 'processing'
-                            ? 'bg-amber-500 text-white'
+                            ? 'bg-blue-500 text-white'
                             : 'bg-white text-slate-600 hover:bg-slate-100'
                     "
                     for="processing"
@@ -163,7 +163,7 @@ watch(selectedFilter, (newFilter) => {
                     class="cursor-pointer p-1 rounded-lg border-2 border-slate-500"
                     :class="
                         selectedFilter === 'delivered'
-                            ? 'bg-blue-500 text-white'
+                            ? 'bg-emerald-500 text-white'
                             : 'bg-white text-slate-600 hover:bg-slate-100'
                     "
                     for="delivered"

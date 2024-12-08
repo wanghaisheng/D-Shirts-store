@@ -17,15 +17,16 @@ class CustomersController extends Controller
                 ->orWhere('zipcode', 'like', '%' . $request->search . '%')
                 ->orWhere('address', 'like', '%' . $request->search . '%');
         })
-        ->select('id', 'name', 'email', 'phone', 'country', 'zipcode', 'address')
-        ->paginate(10)
-        ->withQueryString()
-        ->through(function ($customer) {
-            $customer->total_orders = $customer->total_orders();
-            $customer->total_tshirts_bought = $customer->totalTshirtsBought();
-            $customer->total_spent = $customer->totalSpent();
-            return $customer;
-        });
+            ->select('id', 'name', 'email', 'phone', 'country', 'zipcode', 'address')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(function ($customer) {
+                $customer->total_orders = $customer->total_orders();
+                $customer->total_tshirts_bought = $customer->totalTshirtsBought();
+                $customer->total_spent = $customer->totalSpent();
+                return $customer;
+            });
         $searchTerm = request()->get('search');
         return inertia('Admin/Customers', compact('customers', 'searchTerm'));
     }

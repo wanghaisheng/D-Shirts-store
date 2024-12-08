@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\OrdersController;
@@ -11,12 +10,7 @@ use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\HomePageController;
 use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Customer\TshirtsController as CustomerTshirtsController;
-use App\Mail\NewOrder;
-use App\Mail\OrderProcessing;
-use App\Models\Customer;
-use App\Models\Order;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+
 
 // ################################ Customer Routes ################################
 Route::get('/', [HomePageController::class, 'index'])->name('home');
@@ -62,12 +56,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('revenue', [RevenueController::class, 'index'])->name('revenue');
 });
 Route::redirect('/dashboard', '/admin/orders')->name('dashboard');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
 // ################################ Auth Routes ################################
 require __DIR__ . '/auth.php';

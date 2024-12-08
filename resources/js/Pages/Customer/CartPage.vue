@@ -80,6 +80,15 @@ const checkoutForm = useForm({
 
 const checkProcessing = ref(false);
 function handleCheckoutForm() {
+    if (page.props.auth) {
+        toast.add({
+            severity: "warn",
+            summary: "Warning",
+            detail: "You can't order as Admin, please logout first",
+            life: 3000,
+        });
+        return;
+    }
     checkProcessing.value = true; // Disable the button
     checkoutForm.country = selectedCountry.value;
     axios

@@ -81,13 +81,21 @@ function handleCreateTshirt() {
             });
         },
         onError: () => {
-            const errorMessage = Object.values(createForm.errors)[0];
-            toast.add({
-                severity: "error",
-                summary: "Error",
-                detail: errorMessage,
-                life: 3000,
-            });
+            if (createForm.errors.authorization) {
+                toast.add({
+                    severity: "info",
+                    summary: "Not Authorized 👮🏻‍♂️",
+                    detail: createForm.errors.authorization,
+                });
+            } else {
+                const errorMessage = Object.values(createForm.errors)[0];
+                toast.add({
+                    severity: "error",
+                    summary: "Error",
+                    detail: errorMessage,
+                    life: 3000,
+                });
+            }
         },
     });
 }
@@ -175,13 +183,21 @@ function handleUpdateTshirt() {
             });
         },
         onError: () => {
-            const errorMessage = Object.values(editForm.errors)[0];
-            toast.add({
-                severity: "error",
-                summary: "Error",
-                detail: errorMessage,
-                life: 3000,
-            });
+            if (editForm.errors.authorization) {
+                toast.add({
+                    severity: "info",
+                    summary: "Not Authorized 👮🏻‍♂️",
+                    detail: editForm.errors.authorization,
+                });
+            } else {
+                const errorMessage = Object.values(editForm.errors)[0];
+                toast.add({
+                    severity: "error",
+                    summary: "Error",
+                    detail: errorMessage,
+                    life: 3000,
+                });
+            }
         },
     });
 }
@@ -203,12 +219,23 @@ const confirmDeleteTshirt = (tshirtId) => {
             severity: "danger",
         },
         accept: () => {
-            router.delete(route("t-shirts.destroy", tshirtId));
-            toast.add({
-                severity: "success",
-                summary: "Success",
-                detail: "T-Shirt deleted successfully",
-                life: 3000,
+            router.delete(route("t-shirts.destroy", tshirtId), {
+                onSuccess: page => {
+                    toast.add({
+                        severity: "success",
+                        summary: "Success",
+                        detail: "T-Shirt deleted successfully",
+                        life: 3000,
+                    });
+                },
+                onError: errors => {
+                    toast.add({
+                        severity: "error",
+                        summary: "Error",
+                        detail: errors.authorization,
+                        life: 3000,
+                    });
+                },
             });
         },
     });
@@ -616,7 +643,8 @@ const confirmDeleteTshirt = (tshirtId) => {
         </div>
 
         <!-- Pagination -->
-        <div v-if="tshirts.data.length > 0"
+        <div
+            v-if="tshirts.data.length > 0"
             class="mt-4 mb-12 flex md:flex-row flex-col md:gap-0 gap-2 justify-between items-center w-full"
         >
             <!-- results -->

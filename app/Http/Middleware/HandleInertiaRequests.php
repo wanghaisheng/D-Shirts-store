@@ -48,6 +48,7 @@ class HandleInertiaRequests extends Middleware
                 'tshirts_count' => Tshirt::count(),
                 'revenue' => Number::currency(
                     Order::where('payment_status', '=', 'paid')
+                        ->where('status', '!=', 'cancelled')
                         ->with('tshirts')
                         ->get()
                         ->sum(function ($order) {
