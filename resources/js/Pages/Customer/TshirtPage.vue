@@ -71,7 +71,6 @@ function handleAddToCart() {
                     detail: "Added to cart successfully",
                     life: 3000,
                 });
-                console.log('success');
             } else {
                 toast.add({
                     severity: "warn",
@@ -79,7 +78,6 @@ function handleAddToCart() {
                     detail: page.props[0].errors.cart || "An error occurred",
                     life: 3000,
                 });
-                console.log('error');
             }
         },
     });

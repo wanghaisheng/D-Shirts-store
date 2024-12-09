@@ -58,7 +58,6 @@ const measure = ref("IN");
 const currentSize = ref(sizes.IN);
 watch(measure, () => {
     currentSize.value = sizes[measure.value];
-    console.log(currentSize.value);
 });
 </script>
 

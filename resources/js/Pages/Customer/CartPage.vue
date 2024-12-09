@@ -13,6 +13,9 @@ import FloatLabel from "primevue/floatlabel";
 import Select from "primevue/select";
 import { countriesList } from "@/plugins/coutries";
 import { useForm } from "@inertiajs/vue3";
+import Card from "@/Icons/Card.vue";
+import Popover from "primevue/popover";
+import CopyText from "@/Components/CopyText.vue";
 
 defineOptions({ layout: Customer });
 
@@ -125,13 +128,29 @@ function handleCheckoutForm() {
             checkProcessing.value = false; // Re-enable the button after the request completes
         });
 }
+
+const card = ref();
+const showCard = (event) => {
+    card.value.toggle(event);
+};
 </script>
 
 <template>
     <div class="">
         <Head title="Cart" />
         <Toast position="top-center" />
-        <!-- <p>csrf_token: {{ csrf_token}}</p> -->
+        <Popover ref="card" class="w-fit text-nowrap">
+            <div class="space-y-2">
+                <div>
+                    <CopyText text="4242 4242 4242 4242" class="text-xl" />
+                </div>
+                <div class="flex justify-between">
+                    <CopyText text="12/34" />
+                    <CopyText text="123" />
+                </div>
+            </div>
+        </Popover>
+
         <div class="max-w-7xl mx-auto pt-10 px-8 space-y-6">
             <!-- Top Navigation -->
             <div
@@ -433,7 +452,17 @@ function handleCheckoutForm() {
                     </div>
                     <!-- Checkout Button -->
                     <div>
-                        <!-- <button class="btn w-full">Proceed to checkout</button> -->
+                        <div class="flex justify-start items-center gap-2 my-2">
+                            <p class="text-xs font-main text-slate-700">
+                                Want to test the payment? Use a Stripe test
+                                card! 👉
+                            </p>
+                            <div @click="showCard">
+                                <Card
+                                    class="w-6 h-6 text-slate-700 hover:text-green-500 cursor-pointer"
+                                />
+                            </div>
+                        </div>
                         <button
                             class="btn w-full"
                             :class="
