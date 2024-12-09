@@ -1,107 +1,94 @@
-D-shirts
+# Welcome to D-shirts 🌟
 
-D-shirts is a tech-themed T-shirt store built as a portfolio project to showcase my skills as a Laravel developer. The project is live at d-shirts.galdi.dev and is open source, allowing anyone to clone, customize, and host their own version.
+A full-stack e-commerce platform showcasing tech-inspired t-shirt designs, built as a developer portfolio project.
 
-Tech Stack
+### 🌐 It's live at https://d-shirts.galdi.dev
 
-VILT Stack: Laravel, Inertia, Vue, and Tailwind CSS.
+## 🏠 Homepage:
+![Home Video](Home.gif)
 
-PrimeVue: For UI components.
+## 👨🏻‍💻 Admin Dashboard:
+![Admin Dashboard](Admin.gif)
 
-Stripe: Integrated for payment processing.
+### 🔐 Admin login credentials:
+- url: https://d-shirts.galdi.dev/secret-login-url
+- email: guest-admin@guest-admin.com
+- password: 00000000
 
-Resend: For sending emails.
+## 💻 Tech Stack
 
-Deployment: Deployed on a LEMP server hosted on DigitalOcean.
+- **Backend**: Laravel
+- **Frontend**: Vue + Inertia
+- **Styling**: Tailwind CSS
+- **Components**: PrimeVue
+- **Payments**: Stripe
+- **Email**: Resend
 
-Features
+## Developer’s Journey 🚀
 
-User Features
+**This project was a learning adventure where I:**
 
-Browse and purchase tech-themed T-shirts.
+- Used Inertia.js for the first time to bridge Laravel and Vue.
 
-Responsive design for seamless use across devices.
+- Mastered Stripe integration for secure payments.
 
-Secure payment processing using Stripe.
+- Delved into email services with Resend.
 
-Admin Dashboard
+- Explored Laravel queue jobs for background task handling.
 
-Orders: View incoming orders and mark them as fulfilled.
+- Strengthened my grasp on Laravel authorization.
 
-Customers: Access and manage customer information.
+- Leveraged Laravel sessions to implement a user-friendly cart system, enabling seamless shopping experiences for customers without requiring account creation.
 
-T-shirt Management: Add, edit, and delete T-shirts with their images.
+## Installation: Build Your Own Store 🛠️
 
-Revenue Section: View revenue and order analytics through charts for different time periods.
+**Prerequisites**
 
-What I Learned
+- PHP 8.1+
+- Composer
+- Node.js
+- NPM
+- MySQL
 
-This project was a significant learning experience where I:
+**Installation Steps**
 
-Used Inertia.js for the first time.
-
-Combined Vue.js with Laravel for a seamless frontend-backend interaction.
-
-Implemented Stripe for payment integration.
-
-Configured Laravel for email sending using Resend.
-
-Utilized Laravel queue jobs for asynchronous tasks.
-
-Installation
-
-To set up your own version of D-shirts, follow these steps:
-
-Clone the repository:
-
-git clone https://github.com/your-repo-url.git
+```shell
+# Clone Cosmic Repo
+git clone https://github.com/Mohamed-Galdi/D-Shirts
 cd d-shirts
 
-Install dependencies:
+# Dependencies Warp Speed
+composer install && npm install
 
-composer install
-npm install
-
-Set up the environment variables by copying .env.example to .env:
-
+# Configuration Sequence
 cp .env.example .env
+php artisan key:generate
+php artisan migrate:fresh --seed
+php artisan storage:link
 
-Update the .env file with your own API keys for Stripe and Resend:
-
-# Resend Configuration
-RESEND_API_KEY=re_abc
-MAIL_MAILER=resend
-MAIL_FROM_ADDRESS=d-shirts@galdi.dev
-MAIL_FROM_NAME="${APP_NAME}"
-MAIL_ENCRYPTION=null
-ADMIN_EMAIL=contact.galdi@gmail.com
-
-# Stripe Configuration
-STRIPE_KEY=pk_test_abc
-STRIPE_SECRET=sk_test_abc
-STRIPE_WEBHOOK_SECRET=whsec_abc
-
-Set up the database:
-
-php artisan migrate --seed
-
-This will run migrations and seed the database with predefined data.
-
-Build the frontend assets:
-
-npm run build
-
-Serve the application:
-
+# Start Development Server
+npm run dev
 php artisan serve
 
-Open the application in your browser:
-http://localhost:8000
+# Open http://localhost:8000
 
-Screenshots
+# later you may need to run the queue worker
+php artisan queue:work
+```
+### ⚙️ Environment Secrets:
+```ini
+# Stripe Coordinates
+STRIPE_KEY=pk_test_your_magic_key
+STRIPE_SECRET=sk_test_your_secret_passage
 
-Add screenshots here for the homepage and admin dashboard.
+# Resend Communication Channel
+RESEND_API_KEY=your_email_gateway_key
+```
+You can obtain these keys from your Stripe Dashboard and Resend account.
+## Open Source License 📜
 
-License
+D-shirts is open-source under the MIT License. Contributions and forks are always welcome. Let’s build and innovate together!
 
-This project is open source and available under the MIT License.
+## 📭 Contact
+
+If you have any questions or suggestions, please feel free to reach out to me [contact.galdi@gmail.com](mailto:contact.galdi@gmail.com)
